@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alavo — Programas de Saúde Integrada</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#1D9E75;--green-dark:#0F6E56;--green-light:#E1F5EE;--green-mid:#5DCAA5;
+  --text:#1a1a1a;--text-muted:#6b7280;--bg:#f9fafb;--surface:#ffffff;
+  --border:#e5e7eb;--border-light:#f3f4f6;
+  --amber:#d97706;--amber-bg:#fef3c7;--red:#dc2626;--red-bg:#fee2e2;
+  --purple:#7c3aed;--purple-bg:#ede9fe;--blue:#1d4ed8;--blue-bg:#dbeafe;
+  --radius:8px;--radius-lg:12px;--sidebar-w:220px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:var(--text);background:var(--bg);min-height:100vh}
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--green-dark)}
+.login-box{background:var(--surface);border-radius:var(--radius-lg);padding:2.5rem;width:360px;text-align:center}
+.login-logo{font-size:2rem;font-weight:700;color:var(--green);letter-spacing:-1px;margin-bottom:0.25rem}
+.login-sub{font-size:11px;color:var(--text-muted);margin-bottom:1.75rem;text-transform:uppercase;letter-spacing:0.5px}
+.login-tabs{display:flex;margin-bottom:1.5rem;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.login-tab{flex:1;padding:0.5rem;background:none;border:none;cursor:pointer;font-size:12px;color:var(--text-muted);transition:all 0.15s}
+.login-tab.active{background:var(--green);color:#fff;font-weight:500}
+.field{text-align:left;margin-bottom:1rem}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:0.3rem;text-transform:uppercase;letter-spacing:0.4px}
+.field input,.field select,.field textarea{width:100%;padding:0.6rem 0.75rem;border:1px solid var(--border);border-radius:var(--radius);font-size:14px;color:var(--text);background:var(--surface);outline:none;transition:border-color 0.15s;font-family:inherit}
+.field input:focus,.field textarea:focus{border-color:var(--green)}
+.field textarea{resize:vertical;min-height:70px}
+.btn-primary{width:100%;padding:0.7rem;background:var(--green);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer}
+.btn-primary:hover{background:var(--green-dark)}
+.login-err{font-size:12px;color:var(--red);margin-top:0.5rem;min-height:1rem}
+.login-links{margin-top:1rem;font-size:12px;color:var(--text-muted)}
+.login-links a{color:var(--green);cursor:pointer;text-decoration:underline;display:block;margin-top:0.25rem}
+#app-shell{display:none;height:100vh;overflow:hidden;position:relative}
+#app-shell.visible{display:flex}
+.sidebar{width:var(--sidebar-w);background:var(--green-dark);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sidebar-logo{padding:1.25rem 1rem 1rem;border-bottom:1px solid rgba(255,255,255,0.1)}
+.sidebar-logo-text{font-size:1.4rem;font-weight:700;color:#fff;letter-spacing:-0.5px}
+.sidebar-logo-sub{font-size:10px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.sidebar-profile{padding:0.75rem 1rem;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;gap:0.5rem}
+.sb-av{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;overflow:hidden}
+.sb-av img{width:100%;height:100%;object-fit:cover}
+.sb-name{font-size:12px;color:rgba(255,255,255,0.9);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-role{font-size:10px;color:rgba(255,255,255,0.5)}
+.sidebar-nav{flex:1;padding:0.5rem 0}
+.nav-item{display:flex;align-items:center;gap:0.6rem;padding:0.55rem 1rem;color:rgba(255,255,255,0.7);cursor:pointer;transition:all 0.15s;border-left:3px solid transparent;font-size:13px}
+.nav-item:hover{background:rgba(255,255,255,0.08);color:#fff}
+.nav-item.active{background:rgba(255,255,255,0.12);color:#fff;border-left-color:var(--green-mid);font-weight:500}
+.nav-item svg{width:16px;height:16px;flex-shrink:0;opacity:0.8}
+.sidebar-footer{padding:0.75rem 1rem;border-top:1px solid rgba(255,255,255,0.1)}
+.btn-logout{width:100%;padding:0.5rem;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:var(--radius);color:rgba(255,255,255,0.7);font-size:12px;cursor:pointer}
+.btn-logout:hover{background:rgba(255,255,255,0.15);color:#fff}
+.main-content{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-title{font-size:16px;font-weight:600}
+.topbar-actions{display:flex;gap:0.5rem;align-items:center}
+.notif-banner{background:var(--green);color:#fff;padding:0.65rem 1.5rem;display:flex;align-items:center;gap:0.5rem;font-size:13px;flex-shrink:0}
+.notif-banner.hidden{display:none}
+#pages-container{flex:1;overflow-y:auto}
+.page{padding:1.5rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;border-top:3px solid var(--green)}
+.card-plain{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem}
+.card-title{font-size:14px;font-weight:600;margin-bottom:1rem}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.75rem;margin-bottom:1.5rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;border-top:3px solid var(--green)}
+.stat-num{font-size:24px;font-weight:700;color:var(--green);line-height:1}
+.stat-label{font-size:11px;color:var(--text-muted);margin-top:0.25rem;text-transform:uppercase;letter-spacing:0.4px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+.form-group{display:flex;flex-direction:column;gap:0.3rem}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px}
+.form-input{padding:0.55rem 0.75rem;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text);background:var(--surface);outline:none;width:100%;font-family:inherit}
+.form-input:focus{border-color:var(--green)}
+.form-select{padding:0.55rem 0.75rem;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text);background:var(--surface);outline:none;width:100%;cursor:pointer}
+textarea.form-input{resize:vertical;min-height:70px}
+.btn{padding:0.55rem 1rem;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);transition:all 0.15s;display:inline-flex;align-items:center;gap:0.4rem}
+.btn:hover{background:var(--border-light)}
+.btn-green{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-green:hover{background:var(--green-dark)}
+.btn-sm{padding:0.35rem 0.7rem;font-size:12px}
+.btn-danger{background:var(--red-bg);color:var(--red);border-color:transparent}
+.btn-danger:hover{background:#fecaca}
+.btn-wa{background:#25D366;color:#fff;border-color:#25D366}
+.btn-wa:hover{background:#1aab53}
+.badge{display:inline-flex;align-items:center;padding:0.2rem 0.55rem;border-radius:20px;font-size:11px;font-weight:500}
+.badge-green{background:var(--green-light);color:var(--green-dark)}
+.badge-amber{background:var(--amber-bg);color:var(--amber)}
+.badge-gray{background:var(--border-light);color:var(--text-muted)}
+.badge-purple{background:var(--purple-bg);color:var(--purple)}
+.badge-blue{background:var(--blue-bg);color:var(--blue)}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:0.6rem 0.75rem;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;border-bottom:1px solid var(--border);background:var(--border-light)}
+td{padding:0.65rem 0.75rem;border-bottom:1px solid var(--border-light);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--green-light)}
+.avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;background:var(--green-light);color:var(--green-dark);flex-shrink:0;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.avatar-sm{width:28px;height:28px;font-size:11px}
+.avatar-lg{width:52px;height:52px;font-size:18px}
+.avatar-xl{width:72px;height:72px;font-size:24px}
+.tag-list{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.5rem}
+.tag{background:var(--green-light);color:var(--green-dark);border-radius:20px;padding:0.2rem 0.6rem;font-size:11px;font-weight:500;display:flex;align-items:center;gap:0.3rem}
+.tag-remove{cursor:pointer;opacity:0.6;font-size:14px}
+.spec-chips{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.5rem}
+.spec-chip{padding:0.3rem 0.75rem;border-radius:20px;font-size:12px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s;background:var(--surface);color:var(--text-muted)}
+.spec-chip.selected{background:var(--green);color:#fff;border-color:var(--green);font-weight:500}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--text-muted)}
+.empty-icon{font-size:2.5rem;margin-bottom:0.75rem;opacity:0.4}
+.empty-title{font-size:15px;font-weight:500;color:var(--text);margin-bottom:0.25rem}
+.modal-overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:100;align-items:flex-start;justify-content:center;padding:40px 1rem;overflow-y:auto}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--radius-lg);width:620px;max-width:100%;margin-bottom:2rem}
+.modal-header{padding:1.25rem 1.25rem 0;display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.modal-title{font-size:15px;font-weight:600}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:18px;padding:0.25rem}
+.modal-body{padding:0 1.25rem 1.25rem;max-height:70vh;overflow-y:auto}
+.modal-footer{padding:1rem 1.25rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:0.5rem}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-head{text-align:center;font-size:11px;font-weight:600;color:var(--text-muted);padding:0.4rem 0}
+.cal-day{min-height:64px;padding:0.3rem;border-radius:var(--radius);border:1px solid transparent;cursor:pointer;transition:all 0.15s}
+.cal-day:hover{background:var(--green-light);border-color:var(--green-mid)}
+.cal-day.today{background:var(--green-light);border-color:var(--green)}
+.cal-day.today .cal-day-num{background:var(--green);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.cal-day-num{font-size:12px;font-weight:500;color:var(--text);width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.cal-event-dot{background:var(--green);border-radius:3px;padding:1px 4px;font-size:10px;color:#fff;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem}
+.cal-month-label{font-size:15px;font-weight:600}
+.cal-nav-btn{background:none;border:1px solid var(--border);border-radius:var(--radius);padding:0.3rem 0.6rem;cursor:pointer;font-size:15px;color:var(--text-muted)}
+.cal-nav-btn:hover{background:var(--border-light)}
+.event-item{display:flex;gap:0.75rem;padding:0.75rem;background:var(--green-light);border-radius:var(--radius);border-left:3px solid var(--green);margin-bottom:0.5rem}
+.ev-date{text-align:center;min-width:36px}
+.ev-day{font-size:20px;font-weight:700;color:var(--green-dark);line-height:1}
+.ev-mon{font-size:10px;color:var(--green);text-transform:uppercase}
+.ev-info{flex:1}
+.ev-title{font-size:13px;font-weight:600;color:var(--green-dark)}
+.ev-meta{font-size:11px;color:var(--text-muted);margin-top:2px}
+.timeline{display:flex;flex-direction:column;gap:1rem}
+.post-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.post-header{display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1rem 0}
+.post-body{padding:0.75rem 1rem}
+.post-text{font-size:14px;line-height:1.6}
+.post-img{width:100%;max-height:320px;object-fit:cover;display:block}
+.post-doc{display:flex;align-items:center;gap:0.5rem;background:var(--border-light);border-radius:var(--radius);padding:0.6rem 0.75rem;margin:0.5rem 1rem;font-size:13px;color:var(--green-dark);text-decoration:none}
+.post-compose{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;margin-bottom:1rem}
+.post-compose textarea{width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:0.6rem 0.75rem;font-size:13px;font-family:inherit;resize:none;outline:none;min-height:80px}
+.post-compose textarea:focus{border-color:var(--green)}
+.prof-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem}
+.prof-community-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;text-align:center;transition:border-color 0.15s;cursor:pointer}
+.prof-community-card:hover{border-color:var(--green)}
+.empresa-group-header{font-size:13px;font-weight:600;color:var(--green-dark);padding:0.5rem 0.75rem;background:var(--green-light);border-radius:var(--radius);margin-bottom:0.5rem;display:flex;justify-content:space-between}
+#participant-portal{display:none;min-height:100vh;flex-direction:column;background:var(--bg)}
+#participant-portal.visible{display:flex}
+.portal-header{background:var(--green-dark);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+.portal-logo{font-size:1.25rem;font-weight:700;color:#fff}
+.portal-empresa{font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px}
+.portal-tabs{display:flex;gap:0;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto}
+.portal-tab{padding:0.875rem 1.25rem;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;white-space:nowrap}
+.portal-tab.active{color:var(--green);border-bottom-color:var(--green)}
+.portal-content{flex:1;padding:1.5rem;overflow-y:auto;max-width:720px;width:100%;margin:0 auto}
+.material-type{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;padding:0.2rem 0.5rem;border-radius:20px}
+.mat-exercise{background:#dbeafe;color:#1e40af}
+.mat-nutrition{background:#dcfce7;color:#166534}
+.mat-psychology{background:#f3e8ff;color:#6b21a8}
+.mat-general{background:var(--green-light);color:var(--green-dark)}
+.alert{padding:0.75rem 1rem;border-radius:var(--radius);font-size:13px;margin-bottom:1rem}
+.alert-green{background:var(--green-light);color:var(--green-dark);border:1px solid var(--green-mid)}
+.alert-amber{background:var(--amber-bg);color:var(--amber)}
+.code-box{background:var(--green-dark);color:#fff;border-radius:var(--radius);padding:0.4rem 0.75rem;font-family:monospace;font-size:1rem;letter-spacing:3px;font-weight:700;display:inline-block}
+.section-div{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;padding:0.75rem 0 0.4rem;border-top:1px solid var(--border);margin-top:0.75rem}
+/* IASC */
+.likert-row{margin-bottom:1.25rem}
+.likert-q{font-size:14px;font-weight:500;margin-bottom:0.5rem;color:var(--text)}
+.likert-q-num{font-size:11px;color:var(--text-muted);margin-right:0.5rem}
+.likert-scale{display:flex;align-items:center;gap:0.25rem}
+.likert-label{font-size:11px;color:var(--text-muted);width:90px}
+.likert-label.right{text-align:right}
+.likert-options{display:flex;gap:0.25rem;flex:1;justify-content:center}
+.likert-options label{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;font-size:11px;color:var(--text-muted)}
+.likert-options input[type=radio]{cursor:pointer;accent-color:var(--green);width:16px;height:16px}
+.likert-options label:hover{color:var(--green)}
+.iasc-pilar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;margin-bottom:0.75rem}
+.iasc-pilar-label{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.5rem}
+.iasc-score-bar{height:8px;border-radius:4px;background:var(--border-light);overflow:hidden;margin-bottom:0.25rem}
+.iasc-score-fill{height:100%;border-radius:4px;background:var(--green);transition:width 0.5s}
+.iasc-score-num{font-size:20px;font-weight:700;color:var(--green)}
+.iasc-overall{text-align:center;padding:1.5rem;background:var(--green-light);border-radius:var(--radius-lg);border:2px solid var(--green);margin-bottom:1rem}
+.iasc-overall-num{font-size:3rem;font-weight:700;color:var(--green-dark);line-height:1}
+.iasc-overall-label{font-size:13px;color:var(--green);margin-top:0.25rem}
+.iasc-band{font-size:12px;font-weight:600;padding:0.25rem 0.75rem;border-radius:20px;margin-top:0.5rem;display:inline-block}
+/* CHART wrapper */
+.chart-container{position:relative;height:220px;margin-bottom:1rem}
+.chart-container-sm{position:relative;height:160px}
+/* EMPRESA TABS */
+.emp-tab-bar{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:1.25rem}
+.emp-tab{padding:0.6rem 1rem;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent}
+.emp-tab.active{color:var(--green);border-bottom-color:var(--green)}
+/* SPECIALTY BADGE */
+.sp-exercicio{background:#dbeafe;color:#1e40af}
+.sp-nutricao{background:#dcfce7;color:#166534}
+.sp-psicologia{background:#f3e8ff;color:#6b21a8}
+.sp-fisioterapia{background:#fff7ed;color:#c2410c}
+.sp-enfermagem{background:#fce7f3;color:#9d174d}
+.sp-geral{background:var(--green-light);color:var(--green-dark)}
+/* HISTORY */
+.hist-item{display:flex;gap:0.75rem;padding:0.65rem 0;border-bottom:1px solid var(--border-light)}
+.hist-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.hist-icon.criar{background:#dcfce7;color:#16a34a}
+.hist-icon.editar{background:#dbeafe;color:#1d4ed8}
+.hist-icon.excluir{background:var(--red-bg);color:var(--red)}
+.hist-icon.postar{background:var(--purple-bg);color:var(--purple)}
+.hist-icon.agendar{background:var(--amber-bg);color:var(--amber)}
+.hist-actor{font-size:11px;font-weight:600;color:var(--green-dark);background:var(--green-light);padding:1px 6px;border-radius:20px}
+/* DIALOG */
+#dlg-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9000;align-items:center;justify-content:center}
+#dlg-overlay.open{display:flex}
+#dlg-box{background:#fff;border-radius:var(--radius-lg);padding:1.5rem;max-width:380px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+#dlg-title{font-size:15px;font-weight:600;margin-bottom:0.5rem}
+#dlg-msg{font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:1.25rem;white-space:pre-wrap}
+#dlg-btns{display:flex;gap:0.5rem;justify-content:flex-end}
+#toast-container{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9100;display:flex;flex-direction:column;gap:0.5rem;pointer-events:none}
+.toast{background:#1a1a1a;color:#fff;padding:0.75rem 1rem;border-radius:var(--radius);font-size:13px;max-width:320px;animation:toastIn 0.2s ease}
+.toast.toast-green{background:var(--green)}.toast.toast-red{background:var(--red)}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Alavo</div>
+    <div class="login-sub">Programas de Saúde Integrada</div>
+    <div class="login-tabs">
+      <button class="login-tab active" onclick="switchTab('adm')">ADM</button>
+      <button class="login-tab" onclick="switchTab('profissional')">Profissional</button>
+      <button class="login-tab" onclick="switchTab('empresa')">Empresa</button>
+    </div>
+    <div id="f-adm"><div class="field"><label>Código ADM</label><input type="password" id="lc-adm" placeholder="Código de acesso" onkeydown="if(event.key==='Enter')doLogin()"></div></div>
+    <div id="f-prof" style="display:none"><div class="field"><label>Seu código pessoal</label><input type="text" id="lc-prof" placeholder="Ex: ALV-8X3K" style="text-transform:uppercase;letter-spacing:2px" onkeydown="if(event.key==='Enter')doLoginProf()"></div></div>
+    <div id="f-emp" style="display:none"><div class="field"><label>Código da empresa</label><input type="text" id="lc-emp" placeholder="Ex: ATESEG-2026" style="text-transform:uppercase;letter-spacing:1px" onkeydown="if(event.key==='Enter')doLoginEmpresa()"></div></div>
+    <button class="btn-primary" id="btn-login" onclick="doLogin()">Entrar</button>
+    <div class="login-err" id="login-err"></div>
+    <div class="login-links"><a onclick="showPart()">Participante? Inscreva-se aqui</a></div>
+  </div>
+</div>
+
+<!-- PARTICIPANT REGISTRATION (IASC) -->
+<div id="part-screen" style="display:none;min-height:100vh;background:var(--green-dark);padding:2rem 1rem">
+  <div style="max-width:600px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:2rem">
+      <div class="login-logo" style="color:#fff">Alavo</div>
+      <div style="color:rgba(255,255,255,0.7);font-size:13px;margin-top:0.25rem">Inscrição no Programas de Saúde Integrada</div>
+    </div>
+    <div id="part-form-wrap">
+      <!-- STEP 1: DADOS PESSOAIS -->
+      <div id="step-1" class="card-plain">
+        <div style="background:var(--green);color:#fff;border-radius:var(--radius);padding:1rem;margin-bottom:1.5rem">
+          <div style="font-size:16px;font-weight:600;margin-bottom:0.25rem">Bem-vindo(a) ao Programas de Saúde Integrada Alavo 🌿</div>
+          <div style="font-size:13px;opacity:0.9">Cuidar da saúde vai além de tratar sintomas — envolve entender a rotina, as demandas e as pessoas por completo. Este formulário é o primeiro passo para construirmos um programa pensado para você.</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group full"><label class="form-label">Nome completo *</label><input class="form-input" id="p-nome" placeholder="Seu nome completo"></div>
+          <div class="form-group"><label class="form-label">E-mail *</label><input class="form-input" id="p-email" type="email" placeholder="seu@email.com"></div>
+          <div class="form-group"><label class="form-label">Cargo</label><input class="form-input" id="p-cargo" placeholder="Ex: Analista"></div>
+          <div class="form-group full"><label class="form-label">Empresa *</label><select class="form-select" id="p-empresa"><option value="">Selecione sua empresa</option></select></div>
+        </div>
+        <div style="margin-top:1rem;text-align:right"><button class="btn btn-green" onclick="goStep2()">Continuar →</button></div>
+        <div class="login-err" id="part-err-1"></div>
+      </div>
+
+      <!-- STEP 2: IASC -->
+      <div id="step-2" style="display:none">
+        <div class="card-plain" style="margin-bottom:1rem;background:var(--green-light);border-color:var(--green-mid)">
+          <div style="font-size:15px;font-weight:600;color:var(--green-dark);margin-bottom:0.25rem">IASC — Índice Alavo de Saúde Corporativa</div>
+          <div style="font-size:13px;color:var(--green)">Responda com sinceridade, pensando em como você se sente hoje. Não existem respostas certas ou erradas.</div>
+        </div>
+
+        <div class="card-plain" style="margin-bottom:1rem">
+          <div style="font-size:13px;font-weight:600;color:var(--green-dark);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:2px solid var(--green-light)">Pilar 1 — Bem-estar Integrado</div>
+          <div id="iasc-bi"></div>
+        </div>
+        <div class="card-plain" style="margin-bottom:1rem">
+          <div style="font-size:13px;font-weight:600;color:var(--green-dark);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:2px solid var(--green-light)">Pilar 2 — Engajamento &amp; Participação</div>
+          <div id="iasc-ep"></div>
+        </div>
+        <div class="card-plain" style="margin-bottom:1rem">
+          <div style="font-size:13px;font-weight:600;color:var(--green-dark);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:2px solid var(--green-light)">Pilar 3 — Energia e Produtividade Percebida</div>
+          <div id="iasc-epp"></div>
+        </div>
+        <div class="card-plain" style="margin-bottom:1rem">
+          <div style="font-size:13px;font-weight:600;color:var(--green-dark);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:2px solid var(--green-light)">Pilar 4 — Valor Percebido &amp; Conexão</div>
+          <div id="iasc-vp"></div>
+        </div>
+        <div class="card-plain" style="margin-bottom:1rem;background:#fffbeb;border-color:#fcd34d">
+          <div style="font-size:13px;font-weight:600;color:#92400e;margin-bottom:1rem">Seção Bônus Alavo 💚 — Frequência de autocuidado</div>
+          <div id="iasc-bonus"></div>
+        </div>
+        <div class="card-plain" style="margin-bottom:1.5rem">
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:0.75rem">Pensando nos próximos meses do Programas de Saúde Integrada Alavo, quais temas, cuidados ou atividades você gostaria que fossem trabalhados pela nossa equipe?</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:0.75rem">Você pode sugerir assuntos relacionados a: Educação Física, Nutrição, Fisioterapia e Psicologia. Ou outros temas que considere importantes para sua saúde, bem-estar e rotina de trabalho.</div>
+          <textarea class="form-input" id="p-sugestao" rows="4" placeholder="Escreva suas sugestões aqui..."></textarea>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <button class="btn" onclick="goStep1()">← Voltar</button>
+          <button class="btn btn-green" onclick="submitInscricao()">Concluir inscrição</button>
+        </div>
+        <div class="login-err" id="part-err-2"></div>
+      </div>
+    </div>
+
+    <div id="part-ok" style="display:none">
+      <div class="card-plain" style="text-align:center;padding:2rem">
+        <div style="font-size:3rem;margin-bottom:1rem">🌿</div>
+        <div style="font-size:20px;font-weight:700;color:var(--green);margin-bottom:0.5rem">Inscrição concluída!</div>
+        <div style="font-size:14px;color:var(--text-muted);margin-bottom:1.5rem">Obrigado(a) por participar! Seu IASC inicial foi registrado e a equipe Alavo utilizará essas informações para personalizar o programa.</div>
+        <button class="btn-primary" style="width:auto;padding:0.7rem 2rem" onclick="backLogin()">Voltar ao início</button>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:1rem"><a onclick="backLogin()" style="color:rgba(255,255,255,0.7);font-size:12px;cursor:pointer">← Voltar ao login</a></div>
+  </div>
+</div>
+
+<!-- PARTICIPANT PORTAL -->
+<div id="participant-portal">
+  <div class="portal-header">
+    <div><div class="portal-logo">Alavo</div><div class="portal-empresa" id="portal-emp-nome"></div></div>
+    <button onclick="doLogout()" style="color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:0.4rem 0.75rem;border-radius:var(--radius);cursor:pointer;font-size:12px">Sair</button>
+  </div>
+  <div class="portal-tabs">
+    <div class="portal-tab active" onclick="portalTab('materiais')">Materiais</div>
+    <div class="portal-tab" onclick="portalTab('calendario')">Calendário</div>
+    <div class="portal-tab" onclick="portalTab('feed')">Novidades</div>
+    <div class="portal-tab" onclick="portalTab('meuiasc')">Meu IASC</div>
+  </div>
+  <div class="portal-content" id="portal-content"></div>
+</div>
+
+<!-- APP SHELL -->
+<div id="app-shell">
+  <div class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-text">Alavo</div><div class="sidebar-logo-sub">Programas de Saúde Integrada</div></div>
+    <div class="sidebar-profile"><div class="sb-av" id="sb-av">A</div><div><div class="sb-name" id="sb-name">Administrador</div><div class="sb-role" id="sb-role">ADM</div></div></div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-footer"><button class="btn-logout" onclick="doLogout()">Sair</button></div>
+  </div>
+  <div class="main-content">
+    <div class="notif-banner hidden" id="notif-banner">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span id="notif-text"></span>
+    </div>
+    <div class="topbar"><div class="topbar-title" id="topbar-title">Dashboard</div><div class="topbar-actions" id="topbar-actions"></div></div>
+    <div id="pages-container"></div>
+  </div>
+  <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+    <div class="modal" id="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-header"><div class="modal-title" id="modal-title"></div><button class="modal-close" onclick="closeModal()">✕</button></div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer" id="modal-footer"></div>
+    </div>
+  </div>
+</div>
+<script>
+const ADM_CODE='ALAVO2024';
+function dlgConfirm(msg,title){return new Promise(r=>{const o=document.getElementById('dlg-overlay'),tl=document.getElementById('dlg-title'),ml=document.getElementById('dlg-msg'),bt=document.getElementById('dlg-btns');tl.textContent=title||'Confirmar';ml.textContent=msg;bt.innerHTML='';const no=document.createElement('button');no.className='btn';no.textContent='Cancelar';no.onclick=()=>{o.classList.remove('open');r(false);};const yes=document.createElement('button');yes.className='btn btn-danger';yes.textContent='Confirmar';yes.onclick=()=>{o.classList.remove('open');r(true);};bt.appendChild(no);bt.appendChild(yes);o.classList.add('open');});}
+function dlgAlert(msg,type){return new Promise(r=>{const o=document.getElementById('dlg-overlay'),tl=document.getElementById('dlg-title'),ml=document.getElementById('dlg-msg'),bt=document.getElementById('dlg-btns');tl.textContent=type==='success'?'Concluido':type==='error'?'Erro':'Aviso';ml.textContent=msg;bt.innerHTML='';const ok=document.createElement('button');ok.className='btn btn-green';ok.textContent='OK';ok.onclick=()=>{o.classList.remove('open');r();};bt.appendChild(ok);o.classList.add('open');});}
+function showToast(msg,type,dur){const c=document.getElementById('toast-container');if(!c)return;const t=document.createElement('div');t.className='toast'+(type==='success'?' toast-green':type==='error'?' toast-red':'');t.textContent=msg;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity 0.3s';setTimeout(()=>t.remove(),300);},(dur||2500));}
+let currentRole=null,currentProfId=null,currentEmpresaPortalId=null,loginTab='adm';
+let calendarDate=new Date();
+let especialidadesCustom=['Educação Física','Nutrição','Psicologia','Fisioterapia','Enfermagem','Medicina do Trabalho'];
+
+const IASC_PERGUNTAS={
+  bi:[
+    {id:'bi1',text:'Como você avalia sua disposição física no trabalho?',min:'Muito baixa',max:'Muito alta'},
+    {id:'bi2',text:'Nas últimas semanas, o quanto você sentiu que conseguiu lidar bem com o estresse da rotina?',min:'Não consegui lidar bem',max:'Consegui lidar muito bem'},
+    {id:'bi3',text:'Como você avalia seu equilíbrio emocional na rotina de trabalho?',min:'Muito baixo',max:'Muito alto'},
+  ],
+  ep:[
+    {id:'ep1',text:'O quanto você costuma participar das ações ou iniciativas de saúde promovidas no trabalho?',min:'Nunca participo',max:'Sempre participo'},
+    {id:'ep2',text:'O quanto você se sente motivado(a) a cuidar da sua saúde no ambiente de trabalho?',min:'Nada motivado(a)',max:'Muito motivado(a)'},
+    {id:'ep3',text:'O quanto a sua rotina de trabalho permite que você participe das ações de saúde oferecidas pela empresa?',min:'Não permite',max:'Permite totalmente'},
+  ],
+  epp:[
+    {id:'epp1',text:'Como você avalia sua energia para manter um bom ritmo ao longo do expediente?',min:'Muito baixa',max:'Muito alta'},
+    {id:'epp2',text:'Como você avalia sua capacidade de manter atenção e concentração nas atividades do trabalho?',min:'Muita dificuldade',max:'Muita facilidade'},
+    {id:'epp3',text:'O quanto sua saúde e bem-estar têm favorecido sua produtividade no trabalho?',min:'Não favorecem',max:'Favorecem muito'},
+    {id:'epp4',text:'Como você avalia sua capacidade de se recuperar do cansaço entre um dia de trabalho e outro?',min:'Muito baixa',max:'Muito alta'},
+  ],
+  vp:[
+    {id:'vp1',text:'O quanto você sente que a empresa se preocupa com a sua saúde e bem-estar?',min:'Não se preocupa',max:'Se preocupa muito'},
+    {id:'vp2',text:'O quanto você se sente parte da equipe no seu ambiente de trabalho?',min:'Não me sinto pertencente',max:'Me sinto totalmente pertencente'},
+    {id:'vp3',text:'O quanto as iniciativas de saúde no trabalho fazem diferença para você?',min:'Não fazem diferença',max:'Fazem muita diferença'},
+  ],
+  bonus:[
+    {id:'freq',text:'Com que frequência você tem conseguido cuidar da sua saúde no dia a dia?',type:'freq',opts:['Quase nunca','De vez em quando','Com muita frequência']},
+  ]
+};
+
+const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+function parseLocalDate(s){if(!s)return new Date();if(s.includes('T'))return new Date(s);const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d,12,0,0);}
+
+async function sg(k){try{const r=await window.storage.get(k);return r?JSON.parse(r.value):null;}catch(e){return null;}}
+async function ss(k,v){try{await window.storage.set(k,JSON.stringify(v));}catch(e){}}
+async function getPrfs(){return(await sg('profissionais'))||[];}async function savePrfs(d){await ss('profissionais',d);}
+async function getEqs(){return(await sg('equipes'))||[];}async function saveEqs(d){await ss('equipes',d);}
+async function getEmps(){return(await sg('empresas'))||[];}async function saveEmps(d){await ss('empresas',d);}
+async function getParts(){return(await sg('participantes'))||[];}async function saveParts(d){await ss('participantes',d);}
+async function getPSAs(){return(await sg('psas'))||[];}async function savePSAs(d){await ss('psas',d);}
+async function getEvts(){return(await sg('eventos'))||[];}async function saveEvts(d){await ss('eventos',d);}
+async function getPosts(){return(await sg('posts'))||[];}async function savePosts(d){await ss('posts',d);}
+async function getMats(){return(await sg('materiais'))||[];}async function saveMats(d){await ss('materiais',d);}
+async function getIASCRespostas(){return(await sg('iasc_respostas'))||[];}async function saveIASCRespostas(d){await ss('iasc_respostas',d);}
+async function getHistorico(){return(await sg('historico'))||[];}
+async function saveHistorico(d){await ss('historico',d);}
+async function logAction(acao,entidade,detalhe){
+  try{
+    const hist=await getHistorico();
+    let actor='ADM';
+    if(currentRole==='profissional'&&currentProfId){
+      const profs=await getPrfs();const prof=profs.find(p=>p.id===currentProfId);
+      if(prof){const esp=(prof.especialidades||[prof.especialidade]).filter(Boolean)[0]||'';actor=prof.nome+(esp?' ('+esp+')':'');}
+    }
+    hist.unshift({id:Date.now().toString(),ts:Date.now(),data:new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),acao,entidade,detalhe,actor,role:currentRole||'sistema'});
+    if(hist.length>500)hist.splice(500);
+    await saveHistorico(hist);
+  }catch(e){console.warn('logAction error:',e);}
+}
+
+function gerarCodigo(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return'ALV-'+Array.from({length:4},()=>c[Math.floor(Math.random()*c.length)]).join('');}
+function gerarCodigoEmpresa(nome){return nome.replace(/[^a-zA-Z0-9]/g,'').toUpperCase().substring(0,6)+'-'+new Date().getFullYear();}
+
+function calcIASC(respostas){
+  const pilares=['bi','ep','epp','vp'];
+  const scores={};
+  pilares.forEach(p=>{
+    const qs=IASC_PERGUNTAS[p];
+    const vals=qs.map(q=>parseInt(respostas[q.id]||0)).filter(v=>v>0);
+    scores[p]=vals.length?parseFloat((vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1)):0;
+  });
+  const allVals=pilares.map(p=>scores[p]).filter(v=>v>0);
+  scores.geral=allVals.length?parseFloat((allVals.reduce((a,b)=>a+b,0)/allVals.length).toFixed(1)):0;
+  return scores;
+}
+
+function iascBand(score){
+  if(score>=8)return{label:'Excelente',color:'var(--green)',bg:'var(--green-light)'};
+  if(score>=6)return{label:'Bom',color:'#16a34a',bg:'#dcfce7'};
+  if(score>=4)return{label:'Moderado',color:var_amber,bg:'var(--amber-bg)'};
+  return{label:'Atenção',color:'var(--red)',bg:'var(--red-bg)'};
+}
+var var_amber='#d97706';
+
+function switchTab(tab){
+  loginTab=tab;
+  document.querySelectorAll('.login-tab').forEach((t,i)=>t.classList.toggle('active',['adm','profissional','empresa'][i]===tab));
+  document.getElementById('f-adm').style.display=tab==='adm'?'block':'none';
+  document.getElementById('f-prof').style.display=tab==='profissional'?'block':'none';
+  document.getElementById('f-emp').style.display=tab==='empresa'?'block':'none';
+  const acts={adm:doLogin,profissional:doLoginProf,empresa:doLoginEmpresa};
+  document.getElementById('btn-login').onclick=acts[tab];
+  document.getElementById('login-err').textContent='';
+}
+function doLogin(){if(document.getElementById('lc-adm').value.trim()===ADM_CODE){currentRole='adm';startApp();}else document.getElementById('login-err').textContent='Código inválido.';}
+async function doLoginProf(){const code=document.getElementById('lc-prof').value.trim().toUpperCase();const profs=await getPrfs();const prof=profs.find(p=>p.codigo===code);if(prof){currentRole='profissional';currentProfId=prof.id;startApp(prof);}else document.getElementById('login-err').textContent='Código não encontrado.';}
+async function doLoginEmpresa(){const code=document.getElementById('lc-emp').value.trim().toUpperCase();const emps=await getEmps();const emp=emps.find(e=>e.codigoPortal===code);if(emp){currentRole='empresa';currentEmpresaPortalId=emp.id;showPortal(emp);}else document.getElementById('login-err').textContent='Código não encontrado.';}
+function doLogout(){currentRole=null;currentProfId=null;currentEmpresaPortalId=null;document.getElementById('app-shell').classList.remove('visible');document.getElementById('participant-portal').style.display='none';document.getElementById('login-screen').style.display='flex';['lc-adm','lc-prof','lc-emp'].forEach(id=>document.getElementById(id).value='');document.getElementById('login-err').textContent='';}
+
+function showPart(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('part-screen').style.display='block';
+  getEmps().then(emps=>{const s=document.getElementById('p-empresa');s.innerHTML='<option value="">Selecione sua empresa</option>';emps.forEach(e=>s.innerHTML+=`<option value="${e.id}">${e.nome}</option>`);});
+  renderIASCForm();
+}
+function backLogin(){document.getElementById('part-screen').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('part-form-wrap').style.display='block';document.getElementById('part-ok').style.display='none';}
+function goStep1(){document.getElementById('step-1').style.display='block';document.getElementById('step-2').style.display='none';}
+function goStep2(){
+  const nome=document.getElementById('p-nome').value.trim(),email=document.getElementById('p-email').value.trim(),empId=document.getElementById('p-empresa').value;
+  if(!nome||!email||!empId){document.getElementById('part-err-1').textContent='Preencha todos os campos obrigatórios.';return;}
+  document.getElementById('part-err-1').textContent='';
+  document.getElementById('step-1').style.display='none';document.getElementById('step-2').style.display='block';
+}
+
+function renderIASCForm(){
+  const pilares=[
+    {key:'bi',el:'iasc-bi'},
+    {key:'ep',el:'iasc-ep'},
+    {key:'epp',el:'iasc-epp'},
+    {key:'vp',el:'iasc-vp'},
+    {key:'bonus',el:'iasc-bonus'},
+  ];
+  pilares.forEach(({key,el})=>{
+    const container=document.getElementById(el);if(!container)return;
+    container.innerHTML=IASC_PERGUNTAS[key].map((q,qi)=>{
+      if(q.type==='freq'){
+        return`<div class="likert-row"><div class="likert-q"><span class="likert-q-num">Q</span>${q.text}</div>
+          <div style="display:flex;flex-direction:column;gap:0.5rem;margin-top:0.5rem">
+            ${q.opts.map((opt,i)=>`<label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;font-size:13px">
+              <input type="radio" name="${q.id}" value="${opt}" style="accent-color:var(--green);width:16px;height:16px"> ${opt}
+            </label>`).join('')}
+          </div></div>`;
+      }
+      return`<div class="likert-row">
+        <div class="likert-q"><span class="likert-q-num">${qi+1}.</span>${q.text}</div>
+        <div class="likert-scale">
+          <div class="likert-label" style="font-size:10px;width:100px">${q.min}</div>
+          <div class="likert-options">
+            ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<label><input type="radio" name="${q.id}" value="${n}"><span>${n}</span></label>`).join('')}
+          </div>
+          <div class="likert-label right" style="font-size:10px;width:100px">${q.max}</div>
+        </div>
+      </div>`;
+    }).join('');
+  });
+}
+
+async function submitInscricao(){
+  const nome=document.getElementById('p-nome').value.trim();
+  const email=document.getElementById('p-email').value.trim();
+  const empId=document.getElementById('p-empresa').value;
+  const respostas={};
+  let missing=false;
+  [...IASC_PERGUNTAS.bi,...IASC_PERGUNTAS.ep,...IASC_PERGUNTAS.epp,...IASC_PERGUNTAS.vp].forEach(q=>{
+    const el=document.querySelector(`input[name="${q.id}"]:checked`);
+    if(el)respostas[q.id]=parseInt(el.value);else missing=true;
+  });
+  const freq=document.querySelector('input[name="freq"]:checked');
+  respostas.freq=freq?freq.value:'';
+  respostas.sugestao=document.getElementById('p-sugestao').value.trim();
+  if(missing){document.getElementById('part-err-2').textContent='Por favor, responda todas as perguntas de escala.';return;}
+  const scores=calcIASC(respostas);
+  const p={id:Date.now().toString(),nome,email,cargo:document.getElementById('p-cargo').value.trim(),empresaId:empId,dataRegistro:new Date().toLocaleDateString('pt-BR'),status:'pendente'};
+  const iascReg={id:'iasc-'+p.id,participanteId:p.id,participanteNome:nome,empresaId:empId,tipo:'inscricao',data:new Date().toLocaleDateString('pt-BR'),ts:Date.now(),respostas,scores};
+  const parts=await getParts();parts.push(p);await saveParts(parts);
+  const resps=await getIASCRespostas();resps.push(iascReg);await saveIASCRespostas(resps);
+  document.getElementById('part-form-wrap').style.display='none';document.getElementById('part-ok').style.display='block';
+}
+
+async function showPortal(emp){
+  document.getElementById('login-screen').style.display='none';
+  const portal=document.getElementById('participant-portal');portal.style.display='flex';
+  document.getElementById('portal-emp-nome').textContent=emp.nome;
+  portalTab('materiais');
+}
+
+let portalTabAtual='materiais';
+function portalTab(tab){
+  portalTabAtual=tab;
+  document.querySelectorAll('.portal-tab').forEach((t,i)=>t.classList.toggle('active',['materiais','calendario','feed','meuiasc'][i]===tab));
+  const c=document.getElementById('portal-content');
+  if(tab==='materiais')renderPortalMateriais(c);
+  else if(tab==='calendario')renderPortalCalendario(c);
+  else if(tab==='feed')renderPortalFeed(c);
+  else renderPortalIASC(c);
+}
+
+async function renderPortalMateriais(c){
+  const [mats,posts]=await Promise.all([getMats(),getPosts()]);
+  const empId=currentEmpresaPortalId;
+  const empMats=mats.filter(m=>m.global||m.empresaId===empId);
+  const tipos=[
+    {k:'exercicio',label:'Fichas de exercício',cls:'mat-exercise',icon:'🏃'},
+    {k:'nutricao',label:'Cardápios e nutrição',cls:'mat-nutrition',icon:'🥗'},
+    {k:'psicologia',label:'Material de psicologia',cls:'mat-psychology',icon:'🧠'},
+    {k:'geral',label:'Materiais gerais',cls:'mat-general',icon:'📄'},
+  ];
+  const matPosts=posts.filter(p=>p.tipo==='material_pub'&&(p.global||p.empresaId===empId)).sort((a,b)=>b.ts-a.ts);
+  let html='';
+  tipos.forEach(t=>{
+    const items=empMats.filter(m=>m.tipo===t.k);
+    if(!items.length)return;
+    html+=`<div style="margin-bottom:1.5rem"><div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem"><span>${t.icon}</span><div style="font-size:14px;font-weight:600">${t.label}</div><span class="badge badge-gray">${items.length}</span></div>
+      ${items.map(m=>`<div class="card-plain" style="margin-bottom:0.5rem;display:flex;align-items:center;gap:0.75rem">
+        <span class="material-type ${t.cls}">${t.label.split(' ')[0]}</span>
+        <div style="flex:1"><div style="font-size:13px;font-weight:500">${m.titulo}</div>${m.descricao?`<div style="font-size:11px;color:var(--text-muted)">${m.descricao}</div>`:''}</div>
+        ${m.link?`<a href="${m.link}" target="_blank" class="btn btn-sm btn-green">Abrir</a>`:''}
+      </div>`).join('')}
+    </div>`;
+  });
+  if(!html)html='<div class="empty"><div class="empty-icon">📂</div><div class="empty-title">Nenhum material disponível</div></div>';
+  if(matPosts.length>0)html+=`<div style="margin-top:1.5rem"><div style="font-size:14px;font-weight:600;margin-bottom:0.75rem">📌 Indicações da equipe</div>${matPosts.map(p=>renderPostCard(p)).join('')}</div>`;
+  c.innerHTML=html;
+}
+
+async function renderPortalCalendario(c){
+  const evts=await getEvts();const empId=currentEmpresaPortalId;
+  const empEvts=evts.filter(e=>e.empresaId===empId).sort((a,b)=>parseLocalDate(a.data)-parseLocalDate(b.data));
+  const futuros=empEvts.filter(e=>parseLocalDate(e.data)>=new Date());
+  const passados=empEvts.filter(e=>parseLocalDate(e.data)<new Date()).reverse();
+  c.innerHTML=`<div style="font-size:15px;font-weight:600;margin-bottom:1rem">Próximos encontros</div>
+    ${futuros.length===0?'<div class="empty"><div class="empty-icon">📅</div><div class="empty-title">Nenhum encontro agendado</div></div>':futuros.map(e=>{const d=parseLocalDate(e.data);return`<div class="event-item">
+      <div class="ev-date"><div class="ev-day">${d.getDate()}</div><div class="ev-mon">${MESES[d.getMonth()].substring(0,3)}</div></div>
+      <div class="ev-info"><div class="ev-title">${e.titulo}</div><div class="ev-meta">${e.horario||''} ${e.duracao?'('+e.duracao+')':''} ${e.local?'· '+e.local:''}</div>${e.descricao?`<div class="ev-meta">${e.descricao}</div>`:''}</div>
+      ${e.foto?`<img src="${e.foto}" style="width:70px;height:70px;object-fit:cover;border-radius:var(--radius);flex-shrink:0">`:''}
+    </div>`;}).join('')}
+    ${passados.length>0?`<div style="font-size:15px;font-weight:600;margin:1.5rem 0 0.75rem;color:var(--text-muted)">Encontros realizados</div>${passados.map(e=>{const d=parseLocalDate(e.data);return`<div class="event-item" style="opacity:0.65">
+      <div class="ev-date"><div class="ev-day">${d.getDate()}</div><div class="ev-mon">${MESES[d.getMonth()].substring(0,3)}</div></div>
+      <div class="ev-info"><div class="ev-title">${e.titulo}</div><div class="ev-meta">${e.horario||''}</div></div>
+      ${e.foto?`<img src="${e.foto}" style="width:60px;height:60px;object-fit:cover;border-radius:var(--radius);flex-shrink:0">`:''}
+    </div>`;}).join('')}`:''}`;
+}
+async function renderPortalFeed(c){
+  const posts=await getPosts();const empId=currentEmpresaPortalId;
+  const feed=posts.filter(p=>p.tipo!=='material'&&(p.global||p.empresaId===empId)).sort((a,b)=>b.ts-a.ts);
+  c.innerHTML=`<div class="timeline">${feed.length===0?'<div class="empty"><div class="empty-icon">📰</div><div class="empty-title">Nenhuma publicação ainda</div></div>':feed.map(p=>renderPostCard(p)).join('')}</div>`;
+}
+async function renderPortalIASC(c){
+  const resps=await getIASCRespostas();const empId=currentEmpresaPortalId;
+  const empResps=resps.filter(r=>r.empresaId===empId).sort((a,b)=>a.ts-b.ts);
+  if(empResps.length===0){c.innerHTML='<div class="empty"><div class="empty-icon">📊</div><div class="empty-title">Nenhum dado de IASC ainda</div><div class="empty-desc">Os dados serão exibidos após as inscrições dos participantes.</div></div>';return;}
+  const ultimo=empResps[empResps.length-1];
+  const band=iascBandSimple(ultimo.scores.geral);
+  c.innerHTML=`<div style="font-size:13px;color:var(--text-muted);margin-bottom:0.75rem">Seu resultado mais recente (${ultimo.data})</div>
+    <div class="iasc-overall"><div class="iasc-overall-num">${ultimo.scores.geral}</div><div class="iasc-overall-label">IASC Geral</div><div class="iasc-band" style="background:${band.bg};color:${band.color}">${band.label}</div></div>
+    ${['bi','ep','epp','vp'].map(k=>{const n={bi:'Bem-estar Integrado',ep:'Engajamento & Participação',epp:'Energia e Produtividade',vp:'Valor & Conexão'};const s=ultimo.scores[k]||0;return`<div class="iasc-pilar"><div class="iasc-pilar-label">${n[k]}</div><div style="display:flex;align-items:center;gap:1rem"><div class="iasc-score-bar" style="flex:1"><div class="iasc-score-fill" style="width:${s*10}%"></div></div><div class="iasc-score-num">${s}</div></div></div>`;}).join('')}`;
+}
+function iascBandSimple(score){
+  if(score>=8)return{label:'Excelente',color:var_green,bg:'var(--green-light)'};
+  if(score>=6)return{label:'Bom',color:'#16a34a',bg:'#dcfce7'};
+  if(score>=4)return{label:'Moderado',color:'var(--amber)',bg:'var(--amber-bg)'};
+  return{label:'Atenção',color:'var(--red)',bg:'var(--red-bg)'};
+}
+var var_green='var(--green)';
+
+const navADM=[
+  {id:'dashboard',label:'Dashboard',d:'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'},
+  {id:'profissionais',label:'Profissionais',d:'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z'},
+  {id:'equipes',label:'Equipes',d:'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75'},
+  {id:'empresas',label:'Empresas',d:'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10'},
+  {id:'psa',label:'Programas (PSA)',d:'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2 M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2'},
+  {id:'calendario',label:'Calendário',d:'M8 2v3 M16 2v3 M3 8h18 M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z'},
+  {id:'participantes',label:'Participantes',d:'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z'},
+  {id:'materiais',label:'Biblioteca de materiais',d:'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8'},
+  {id:'backup',label:'Backup & exportação',d:'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4 M7 10l5 5 5-5 M12 15V3'},
+  {id:'historico',label:'Histórico de ações',d:'M12 8v4l3 3 M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z'},
+];
+const navProf=[
+  {id:'inicio',label:'Início',d:'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'},
+  {id:'ecossistema',label:'Ecossistema Alavo',d:'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75'},
+  {id:'meuperfil',label:'Meu perfil',d:'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z'},
+  {id:'empresa-equipe',label:'Programas & empresas',d:'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2 M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2'},
+  {id:'calendario',label:'Calendário',d:'M8 2v3 M16 2v3 M3 8h18 M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z'},
+];
+function mkIcon(d){return`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="${d}" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
+
+function startApp(prof){
+  document.getElementById('login-screen').style.display='none';
+  const shell=document.getElementById('app-shell');shell.classList.add('visible');
+  const nav=currentRole==='adm'?navADM:navProf;
+  if(currentRole==='adm'){document.getElementById('sb-name').textContent='Administrador';document.getElementById('sb-role').textContent='ADM';document.getElementById('sb-av').textContent='A';}
+  else{document.getElementById('sb-name').textContent=prof.nome.split(' ')[0];document.getElementById('sb-role').textContent=(prof.especialidades||[prof.especialidade])[0]||'Profissional';const av=document.getElementById('sb-av');if(prof.foto)av.innerHTML=`<img src="${prof.foto}">`;else av.textContent=prof.nome.charAt(0);}
+  const navEl=document.getElementById('sidebar-nav');navEl.innerHTML='';
+  nav.forEach(item=>{const el=document.createElement('div');el.className='nav-item';el.innerHTML=mkIcon(item.d)+item.label;el.onclick=()=>loadPage(item.id);el.dataset.id=item.id;navEl.appendChild(el);});
+  loadPage(nav[0].id);checkNotif();
+}
+
+function loadPage(id){
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.id===id));
+  const titles={dashboard:'Dashboard',inicio:'Início',profissionais:'Profissionais',equipes:'Equipes',empresas:'Empresas',psa:'Programas (PSA)',calendario:'Calendário',participantes:'Participantes',materiais:'Biblioteca de materiais',backup:'Backup & exportação',historico:'Histórico de ações',meuperfil:'Meu perfil',ecossistema:'Ecossistema Alavo','empresa-equipe':'Programas & empresas'};
+  document.getElementById('topbar-title').textContent=titles[id]||id;
+  document.getElementById('topbar-actions').innerHTML='';
+  const pages={dashboard:pgDashboard,inicio:pgInicio,profissionais:pgProfissionais,equipes:pgEquipes,empresas:pgEmpresas,psa:pgPSA,calendario:pgCalendario,participantes:pgParticipantes,materiais:pgMateriais,backup:pgBackup,historico:pgHistorico,meuperfil:pgMeuPerfil,ecossistema:pgEcossistema,'empresa-equipe':pgEmpresaEquipe};
+  if(pages[id])pages[id](document.getElementById('pages-container'));
+}
+
+async function pgDashboard(container){
+  const [profs,eqs,emps,parts,psas,evts]=await Promise.all([getPrfs(),getEqs(),getEmps(),getParts(),getPSAs(),getEvts()]);
+  const proxEvts=evts.filter(e=>parseLocalDate(e.data)>=new Date()).sort((a,b)=>parseLocalDate(a.data)-parseLocalDate(b.data)).slice(0,3);
+  const pend=parts.filter(p=>p.status==='pendente');
+  container.innerHTML=`<div class="page"><div class="stat-grid">
+    <div class="stat-card"><div class="stat-num">${profs.length}</div><div class="stat-label">Profissionais</div></div>
+    <div class="stat-card"><div class="stat-num">${emps.length}</div><div class="stat-label">Empresas</div></div>
+    <div class="stat-card"><div class="stat-num">${psas.filter(p=>p.status==='ativo').length}</div><div class="stat-label">PSAs ativos</div></div>
+    <div class="stat-card"><div class="stat-num">${parts.length}</div><div class="stat-label">Participantes</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+    <div class="card"><div class="card-title">Próximos encontros</div>${proxEvts.map(e=>{const d=parseLocalDate(e.data);return`<div class="event-item"><div class="ev-date"><div class="ev-day">${d.getDate()}</div><div class="ev-mon">${MESES[d.getMonth()].substring(0,3)}</div></div><div class="ev-info"><div class="ev-title">${e.titulo}</div><div class="ev-meta">${e.empresa||''} · ${e.horario||''}</div></div></div>`;}).join('')||'<div class="empty"><div class="empty-desc">Nenhum agendado.</div></div>'}</div>
+    <div class="card"><div class="card-title">Cadastros pendentes ${pend.length>0?`<span class="badge badge-amber">${pend.length}</span>`:''}</div>${pend.slice(0,4).map(p=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0;border-bottom:1px solid var(--border-light)"><div class="avatar avatar-sm">${p.nome.charAt(0)}</div><div style="flex:1"><div style="font-size:13px;font-weight:500">${p.nome}</div><div style="font-size:11px;color:var(--text-muted)">${p.email}</div></div><button class="btn btn-sm btn-green" onclick="ativarPart('${p.id}')">Ativar</button></div>`).join('')||'<div class="empty"><div class="empty-desc">Nenhum pendente.</div></div>'}${pend.length>0?`<div style="margin-top:0.75rem"><button class="btn btn-sm" onclick="loadPage('participantes')">Ver todos →</button></div>`:''}</div>
+  </div></div>`;
+}
+
+async function pgProfissionais(container){
+  document.getElementById('topbar-actions').innerHTML=`<button class="btn btn-green" onclick="openProfModal()">+ Novo profissional</button>`;
+  const profs=await getPrfs();
+  container.innerHTML=`<div class="page">${profs.length===0?`<div class="card"><div class="empty"><div class="empty-icon">👤</div><div class="empty-title">Nenhum profissional</div></div></div>`:
+  `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem">${profs.map(p=>`<div class="card-plain" style="display:flex;flex-direction:column;gap:0.75rem">
+    <div style="display:flex;align-items:center;gap:0.75rem"><div class="avatar avatar-lg" style="cursor:pointer" onclick="openProfModal('${p.id}')">${p.foto?`<img src="${p.foto}">`:p.nome.charAt(0)}</div>
+    <div style="flex:1;min-width:0"><div style="font-weight:600">${p.nome}</div><div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:3px">${(p.especialidades||[p.especialidade]).filter(Boolean).map(s=>`<span class="badge badge-green" style="font-size:10px">${s}</span>`).join('')}</div></div></div>
+    <div style="font-size:12px;color:var(--text-muted)">${p.email?`<div>${p.email}</div>`:''}${p.telefone?`<div>${p.telefone}</div>`:''}<div style="font-size:10px;margin-top:2px">Desde: ${p.dataCadastro||'—'}</div></div>
+    ${p.codigo?`<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap"><div class="code-box" style="font-size:0.9rem;padding:0.3rem 0.6rem">${p.codigo}</div><button class="btn btn-sm btn-wa" onclick="enviarWA('${p.id}')">WhatsApp</button></div>`:''}
+    <div style="display:flex;gap:0.5rem;margin-top:auto"><button class="btn btn-sm" style="flex:1" onclick="openProfModal('${p.id}')">Editar</button><button class="btn btn-sm" onclick="reCodigo('${p.id}')" title="Novo código">🔑</button><button class="btn btn-sm btn-danger" onclick="delProf('${p.id}')">×</button></div>
+  </div>`).join('')}</div>`}</div>`;
+}
+
+async function openProfModal(id){
+  const profs=await getPrfs();const p=id?profs.find(x=>x.id===id):null;
+  let selecionadas=[...(p?.especialidades||(p?.especialidade?[p.especialidade]:[]))];
+  const renderChips=()=>{const el=document.getElementById('esp-chips');if(!el)return;el.innerHTML=especialidadesCustom.map(s=>`<div class="spec-chip ${selecionadas.includes(s)?'selected':''}" onclick="tglEsp(this,'${s}')">${s} <span onclick="rmEsp(event,'${s}')" style="margin-left:4px;opacity:0.5;cursor:pointer">×</span></div>`).join('')+`<div class="spec-chip" onclick="addEsp()" style="border-style:dashed">+ Nova</div>`;};
+  openModal(id?'Editar profissional':'Novo profissional',`
+    <div style="display:flex;gap:1rem;align-items:flex-start;margin-bottom:1rem">
+      <div><div class="avatar avatar-xl" style="cursor:pointer;border:2px dashed var(--border)" onclick="triggerFoto()" title="Clique para foto">${p?.foto?`<img src="${p.foto}" id="foto-prv">`:p?`<span id="foto-prv">${p.nome.charAt(0)}</span>`:`<span id="foto-prv">+</span>`}</div><div style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:4px">Clique na foto</div></div>
+      <div style="flex:1"><div class="form-group"><label class="form-label">URL da foto</label><input class="form-input" id="pf-foto" value="${p?.foto||''}" placeholder="https://..." oninput="prvFoto(this.value)"></div></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full"><label class="form-label">Nome *</label><input class="form-input" id="pf-nome" value="${p?.nome||''}" placeholder="Nome completo"></div>
+      <div class="form-group"><label class="form-label">E-mail</label><input class="form-input" id="pf-email" type="email" value="${p?.email||''}"></div>
+      <div class="form-group"><label class="form-label">Telefone (WhatsApp)</label><input class="form-input" id="pf-tel" value="${p?.telefone||''}"></div>
+      <div class="form-group"><label class="form-label">CPF</label><input class="form-input" id="pf-cpf" value="${p?.cpf||''}"></div>
+      <div class="form-group"><label class="form-label">Registro profissional</label><input class="form-input" id="pf-reg" value="${p?.registro||''}"></div>
+      <div class="form-group full"><label class="form-label">Especialidades *</label><div class="spec-chips" id="esp-chips"></div></div>
+      <div class="form-group full"><label class="form-label">Link contrato / PDF</label><input class="form-input" id="pf-contrato" value="${p?.contrato||''}" placeholder="Link Google Drive..."></div>
+      <div class="form-group full"><label class="form-label">Observações</label><textarea class="form-input" id="pf-obs">${p?.obs||''}</textarea></div>
+      ${id&&p?.codigo?`<div class="form-group full"><label class="form-label">Código de acesso</label><div style="display:flex;gap:0.5rem;align-items:center"><div class="code-box">${p.codigo}</div><button class="btn btn-sm" onclick="reCodigo('${id}');closeModal()">Novo</button><button class="btn btn-sm btn-wa" onclick="enviarWA('${id}')">WhatsApp</button></div></div>`:''}
+      ${p?.dataCadastro?`<div class="form-group full"><label class="form-label">Cadastrado em</label><div style="font-size:13px;color:var(--text-muted)">${p.dataCadastro}</div></div>`:''}
+    </div>
+  `,[{label:'Cancelar',action:closeModal,secondary:true},{label:id?'Salvar':'Cadastrar',action:async()=>{
+    const nome=document.getElementById('pf-nome').value.trim();if(!nome||selecionadas.length===0){await dlgAlert('Nome e especialidade obrigatorios.');return;}
+    const profs=await getPrfs();let codigo=p?.codigo;if(!codigo){do{codigo=gerarCodigo();}while(profs.some(x=>x.codigo===codigo));}
+    const pf={id:id||Date.now().toString(),nome,codigo,email:document.getElementById('pf-email').value.trim(),telefone:document.getElementById('pf-tel').value.trim(),cpf:document.getElementById('pf-cpf').value.trim(),registro:document.getElementById('pf-reg').value.trim(),especialidade:selecionadas[0],especialidades:selecionadas,contrato:document.getElementById('pf-contrato').value.trim(),foto:document.getElementById('pf-foto').value.trim(),obs:document.getElementById('pf-obs').value.trim(),dataCadastro:p?.dataCadastro||new Date().toLocaleDateString('pt-BR')};
+    const isEdit=!!id;
+    if(isEdit){const i=profs.findIndex(x=>x.id===id);if(i>-1)profs[i]=pf;}else profs.push(pf);
+    await savePrfs(profs);
+    await logAction(isEdit?'editou':'criou','Profissional',pf.nome+' — '+(pf.especialidades||[pf.especialidade]).filter(Boolean)[0]);
+    closeModal();loadPage('profissionais');
+  }}]);
+  setTimeout(()=>{renderChips();window._sel=selecionadas;window._chips=renderChips;},50);
+}
+function tglEsp(el,v){const s=window._sel;if(s.includes(v))s.splice(s.indexOf(v),1);else s.push(v);window._chips();}
+async function rmEsp(e,v){e.stopPropagation();if(!await dlgConfirm(`Remover "${v}"?`,'Confirmar'))return;especialidadesCustom=especialidadesCustom.filter(x=>x!==v);if(window._sel)window._sel=window._sel.filter(x=>x!==v);window._chips();}
+function addEsp(){const n=prompt('Nova especialidade:');if(!n||!n.trim())return;if(!especialidadesCustom.includes(n.trim()))especialidadesCustom.push(n.trim());if(window._sel&&!window._sel.includes(n.trim()))window._sel.push(n.trim());window._chips();}
+function triggerFoto(){const u=prompt('URL da foto:');if(u!==null){document.getElementById('pf-foto').value=u;prvFoto(u);}}
+function prvFoto(url){const el=document.getElementById('foto-prv');if(!el)return;if(url)el.outerHTML=`<img src="${url}" id="foto-prv" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;else el.textContent='+';}
+async function reCodigo(id){const profs=await getPrfs();const p=profs.find(x=>x.id===id);if(!p)return;let c;do{c=gerarCodigo();}while(profs.some(x=>x.codigo===c&&x.id!==id));p.codigo=c;await savePrfs(profs);loadPage('profissionais');}
+async function enviarWA(id){const profs=await getPrfs();const p=profs.find(x=>x.id===id);if(!p||!p.telefone){await dlgAlert('Telefone nao cadastrado.');return;}const tel=p.telefone.replace(/\D/g,'');const msg=encodeURIComponent(`Olá ${p.nome.split(' ')[0]}! Seu código de acesso à plataforma Alavo é: *${p.codigo}*\n\nUse no login de Profissional.\n\nEquipe Alavo 🌿`);window.open(`https://wa.me/55${tel}?text=${msg}`,'_blank');}
+async function delProf(id){if(!await dlgConfirm('Remover?','Confirmar exclusao'))return;const items=await getPrfs();const found=items.find(x=>x.id===id);await savePrfs(items.filter(x=>x.id!==id));await logAction('excluiu','Profissional',found?.nome||id);loadPage('profissionais');}
+
+async function pgEquipes(container){
+  document.getElementById('topbar-actions').innerHTML=`<button class="btn btn-green" onclick="openEqModal()">+ Nova equipe</button>`;
+  const [eqs,profs,psas]=await Promise.all([getEqs(),getPrfs(),getPSAs()]);
+  const pn=id=>{const p=profs.find(x=>x.id===id);return p?p.nome:'?';};
+  const pe=id=>{const p=profs.find(x=>x.id===id);return p?(p.especialidades||[p.especialidade]).filter(Boolean)[0]||'':'';};
+  container.innerHTML=`<div class="page">${eqs.length===0?`<div class="card"><div class="empty"><div class="empty-icon">👥</div><div class="empty-title">Nenhuma equipe</div></div></div>`:
+  eqs.map(eq=>{const eqPs=psas.filter(p=>p.equipeId===eq.id);return`<div class="card-plain" style="margin-bottom:1rem">
+    <div style="display:flex;justify-content:space-between;margin-bottom:0.75rem"><div><div style="font-weight:600;font-size:15px">${eq.nome}</div><div style="font-size:12px;color:var(--text-muted)">${eq.cidade||''} ${eq.dataCriacao?'· Criada '+eq.dataCriacao:''}</div></div>
+    <div style="display:flex;gap:0.5rem"><button class="btn btn-sm" onclick="openEqModal('${eq.id}')">Editar</button><button class="btn btn-sm btn-danger" onclick="delEq('${eq.id}')">×</button></div></div>
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.75rem">${(eq.membros||[]).map(mid=>`<div style="display:flex;align-items:center;gap:0.4rem;background:var(--green-light);border-radius:20px;padding:0.2rem 0.5rem 0.2rem 0.3rem"><div class="avatar" style="width:20px;height:20px;font-size:9px">${pn(mid).charAt(0)}</div><span style="font-size:12px;color:var(--green-dark);font-weight:500">${pn(mid)}</span><span style="font-size:10px;color:var(--green)">${pe(mid)}</span></div>`).join('')||'<span style="font-size:12px;color:var(--text-muted)">Sem membros</span>'}</div>
+    ${eqPs.length>0?`<div style="border-top:1px solid var(--border-light);padding-top:0.5rem"><div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.35rem">Histórico de programas</div><div style="display:flex;flex-wrap:wrap;gap:0.4rem">${eqPs.map(ps=>`<span class="badge ${ps.status==='ativo'?'badge-green':'badge-gray'}">${ps.nome}</span>`).join('')}</div></div>`:''}
+  </div>`;}).join('')}</div>`;
+}
+async function openEqModal(id){
+  const [profs,eqs]=await Promise.all([getPrfs(),getEqs()]);const eq=id?eqs.find(e=>e.id===id):null;
+  openModal(id?'Editar equipe':'Nova equipe',`<div class="form-grid">
+    <div class="form-group full"><label class="form-label">Nome *</label><input class="form-input" id="eq-nome" value="${eq?.nome||''}"></div>
+    <div class="form-group"><label class="form-label">Cidade</label><input class="form-input" id="eq-cidade" value="${eq?.cidade||''}"></div>
+    <div class="form-group"><label class="form-label">Data de criação</label><input class="form-input" id="eq-data" type="date" value="${eq?.dataCriacaoISO||''}"></div>
+    <div class="form-group full"><label class="form-label">Observação</label><input class="form-input" id="eq-obs" value="${eq?.obs||''}"></div>
+    <div class="form-group full"><label class="form-label">Profissionais</label><div style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius);padding:0.5rem">${profs.map(p=>`<div style="display:flex;align-items:center;gap:0.5rem;padding:0.35rem 0;border-bottom:1px solid var(--border-light)"><input type="checkbox" id="em-${p.id}" ${(eq?.membros||[]).includes(p.id)?'checked':''}><label for="em-${p.id}" style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;flex:1"><div class="avatar avatar-sm">${p.nome.charAt(0)}</div><span style="font-size:13px">${p.nome}</span><span class="badge badge-green" style="margin-left:auto">${(p.especialidades||[p.especialidade])[0]||''}</span></label></div>`).join('')}</div></div>
+  </div>`,[{label:'Cancelar',action:closeModal,secondary:true},{label:id?'Salvar':'Criar',action:async()=>{
+    const nome=document.getElementById('eq-nome').value.trim();if(!nome){await dlgAlert('Nome obrigatorio.');return;}
+    const membros=profs.map(p=>p.id).filter(pid=>{const cb=document.getElementById('em-'+pid);return cb&&cb.checked;});
+    const di=document.getElementById('eq-data').value;
+    const newEq={id:id||Date.now().toString(),nome,obs:document.getElementById('eq-obs').value.trim(),cidade:document.getElementById('eq-cidade').value.trim(),dataCriacaoISO:di,dataCriacao:di?new Date(di+'T12:00:00').toLocaleDateString('pt-BR'):(eq?.dataCriacao||new Date().toLocaleDateString('pt-BR')),membros};
+    const eqs=await getEqs();const isEditEq=!!id;if(isEditEq){const i=eqs.findIndex(e=>e.id===id);if(i>-1)eqs[i]=newEq;}else eqs.push(newEq);await saveEqs(eqs);await logAction(isEditEq?'editou':'criou','Equipe',newEq.nome);closeModal();loadPage('equipes');
+  }}]);
+}
+async function delEq(id){if(!await dlgConfirm('Remover?','Confirmar exclusao'))return;const items=await getEqs();const found=items.find(x=>x.id===id);await saveEqs(items.filter(x=>x.id!==id));await logAction('excluiu','Equipe',found?.nome||id);loadPage('equipes');}
+
+// EMPRESAS WITH TABS (Info + IASC)
+async function pgEmpresas(container){
+  document.getElementById('topbar-actions').innerHTML=`<button class="btn btn-green" onclick="openEmpModal()">+ Nova empresa</button>`;
+  const [emps,parts,psas,iascs]=await Promise.all([getEmps(),getParts(),getPSAs(),getIASCRespostas()]);
+  container.innerHTML=`<div class="page">${emps.length===0?`<div class="card"><div class="empty"><div class="empty-icon">🏢</div><div class="empty-title">Nenhuma empresa</div></div></div>`:
+  `<div style="display:flex;flex-direction:column;gap:0.75rem">${emps.map(emp=>{
+    const ep=parts.filter(p=>p.empresaId===emp.id).length;
+    const at=psas.filter(p=>p.empresaId===emp.id&&p.status==='ativo').length;
+    const empIascs=iascs.filter(r=>r.empresaId===emp.id);
+    const lastIasc=empIascs.length?empIascs[empIascs.length-1]:null;
+    return`<div class="card-plain" style="cursor:pointer" onclick="verEmp('${emp.id}')">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:0.75rem">
+          <div class="avatar avatar-lg" style="border-radius:var(--radius)">${emp.nome.charAt(0)}</div>
+          <div><div style="font-weight:600;font-size:15px">${emp.nome}</div><div style="font-size:12px;color:var(--text-muted)">${emp.setor||'—'} · ${emp.cidade||''}</div>${emp.instagram?`<div style="font-size:11px;color:var(--green)">@${emp.instagram}</div>`:''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:1rem">
+          <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--green)">${ep}</div><div style="font-size:10px;color:var(--text-muted)">participantes</div></div>
+          <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--green)">${at}</div><div style="font-size:10px;color:var(--text-muted)">PSAs</div></div>
+          ${lastIasc?`<div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--green)">${lastIasc.scores.geral}</div><div style="font-size:10px;color:var(--text-muted)">IASC</div></div>`:''}
+          ${emp.codigoPortal?`<div class="code-box" style="font-size:0.7rem;padding:0.2rem 0.4rem;letter-spacing:1px">${emp.codigoPortal}</div>`:''}
+          <span class="badge ${emp.status==='ativo'?'badge-green':'badge-gray'}">${emp.status||'ativo'}</span>
+        </div>
+      </div>
+    </div>`;}).join('')}</div>`}</div>`;
+}
+
+async function verEmp(id){
+  const [emps,parts,psas,evts,iascs]=await Promise.all([getEmps(),getParts(),getPSAs(),getEvts(),getIASCRespostas()]);
+  const emp=emps.find(e=>e.id===id);if(!emp)return;
+  const ep=parts.filter(p=>p.empresaId===id);
+  const epsas=psas.filter(p=>p.empresaId===id);
+  const empIascs=iascs.filter(r=>r.empresaId===id).sort((a,b)=>a.ts-b.ts);
+  let activeTab='info';
+  function renderTabs(){
+    const tabs=[{k:'info',label:'Informações'},{k:'iasc',label:`IASC (${empIascs.length})`},{k:'portal',label:'Portal'}];
+    const tabHtml=tabs.map(t=>`<div class="emp-tab ${activeTab===t.k?'active':''}" onclick="switchEmpTab('${t.k}')">${t.label}</div>`).join('');
+    document.getElementById('modal-body').innerHTML=`<div class="emp-tab-bar">${tabHtml}</div><div id="emp-tab-content"></div>`;
+    renderEmpTabContent();
+  }
+  window.switchEmpTab=(t)=>{activeTab=t;renderTabs();};
+  function renderEmpTabContent(){
+    const c=document.getElementById('emp-tab-content');if(!c)return;
+    if(activeTab==='info'){
+      const eevts=evts.filter(e=>e.empresaId===id&&parseLocalDate(e.data)>=new Date()).slice(0,3);
+      c.innerHTML=`<div class="form-grid" style="margin-bottom:0.75rem">
+        <div><div class="form-label">CNPJ</div><div style="font-size:13px">${emp.cnpj||'—'}</div></div>
+        <div><div class="form-label">Setor</div><div style="font-size:13px">${emp.setor||'—'}</div></div>
+        <div><div class="form-label">Contato</div><div style="font-size:13px">${emp.contato||'—'}</div></div>
+        <div><div class="form-label">Cidade</div><div style="font-size:13px">${emp.cidade||'—'}</div></div>
+        ${emp.instagram?`<div class="full"><div class="form-label">Instagram</div><div style="font-size:13px;color:var(--green)">@${emp.instagram}</div></div>`:''}
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;border-top:1px solid var(--border);padding-top:0.75rem;margin-top:0.25rem;margin-bottom:0.5rem">Participantes (${ep.length})</div>
+      ${ep.slice(0,4).map(p=>`<div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0;border-bottom:1px solid var(--border-light)"><div class="avatar avatar-sm">${p.nome.charAt(0)}</div><span style="font-size:13px;flex:1">${p.nome}</span><span class="badge ${p.status==='ativo'?'badge-green':'badge-amber'}">${p.status}</span></div>`).join('')||'<div style="font-size:12px;color:var(--text-muted)">Nenhum.</div>'}
+      <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;border-top:1px solid var(--border);padding-top:0.75rem;margin-top:0.75rem;margin-bottom:0.5rem">Programas (${epsas.length})</div>
+      ${epsas.map(p=>`<div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border-light);font-size:13px"><span>${p.nome}</span><span class="badge ${p.status==='ativo'?'badge-green':'badge-gray'}">${p.status}</span></div>`).join('')||'<div style="font-size:12px;color:var(--text-muted)">Nenhum.</div>'}
+      `;
+    } else if(activeTab==='iasc'){
+      if(empIascs.length===0){c.innerHTML='<div class="empty"><div class="empty-icon">📊</div><div class="empty-title">Nenhum dado IASC</div><div class="empty-desc">Os dados aparecerão após as inscrições.</div></div>';return;}
+      const ultimo=empIascs[empIascs.length-1];const band=iascBandSimple(ultimo.scores.geral);
+      const allScores=empIascs.map(r=>r.scores.geral);
+      c.innerHTML=`
+        <div class="iasc-overall"><div class="iasc-overall-num">${ultimo.scores.geral}</div><div class="iasc-overall-label">IASC Geral — ${ultimo.data}</div><div class="iasc-band" style="background:${band.bg};color:${band.color}">${band.label}</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem">
+          ${[{k:'bi',n:'Bem-estar Integrado'},{k:'ep',n:'Engajamento'},{k:'epp',n:'Energia & Produtividade'},{k:'vp',n:'Valor & Conexão'}].map(({k,n})=>{const s=ultimo.scores[k]||0;return`<div class="iasc-pilar"><div class="iasc-pilar-label">${n}</div><div style="display:flex;align-items:center;gap:0.75rem"><div class="iasc-score-bar" style="flex:1"><div class="iasc-score-fill" style="width:${s*10}%"></div></div><div class="iasc-score-num" style="font-size:16px">${s}</div></div></div>`;}).join('')}
+        </div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:0.75rem">Respostas por pergunta</div>
+        <div class="chart-container" style="height:250px"><canvas id="chart-perguntas"></canvas></div>
+        <div style="font-size:13px;font-weight:600;margin:1rem 0 0.75rem">Frequência de autocuidado</div>
+        <div style="display:flex;gap:1rem;align-items:center">
+          <div class="chart-container-sm" style="width:160px;flex-shrink:0"><canvas id="chart-freq"></canvas></div>
+          <div id="freq-legend" style="font-size:12px"></div>
+        </div>
+        ${empIascs[0]?.respostas?.sugestao?`<div style="margin-top:1rem;padding:0.75rem;background:var(--border-light);border-radius:var(--radius)"><div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.35rem">Sugestões dos participantes</div><div style="font-size:13px">${empIascs.map(r=>r.respostas?.sugestao).filter(Boolean).join(' | ')}</div></div>`:''}
+        <div style="margin-top:1rem;text-align:right"><button class="btn btn-sm btn-green" onclick="abrirIASCFinal('${id}')">+ Registrar IASC final do programa</button></div>
+      `;
+      setTimeout(()=>renderIASCCharts(empIascs),100);
+    } else {
+      c.innerHTML=`<div style="font-size:13px;margin-bottom:0.75rem;color:var(--text-muted)">Compartilhe este código com os colaboradores da empresa para acesso ao portal do participante.</div>
+        ${emp.codigoPortal?`<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem"><div class="code-box" style="font-size:1.1rem">${emp.codigoPortal}</div><button class="btn btn-sm" onclick="gerarCodigoEmp('${id}')">Novo código</button></div>`:`<button class="btn btn-sm btn-green" onclick="gerarCodigoEmp('${id}')">Gerar código de acesso</button>`}
+        <div style="margin-top:1rem;display:flex;gap:0.5rem">
+          <button class="btn btn-sm btn-green" onclick="closeModal();openEmpModal('${id}')">Editar empresa</button>
+          <button class="btn btn-sm btn-green" onclick="closeModal();openPSAModal('${id}')">+ PSA</button>
+        </div>`;
+    }
+  }
+  openModal(`Empresa: ${emp.nome}`,'',null);
+  document.getElementById('modal-footer').innerHTML=`<button class="btn" onclick="closeModal()">Fechar</button>`;
+  renderTabs();
+}
+
+function renderIASCCharts(iascs){
+  const ultimo=iascs[iascs.length-1];const respostas=ultimo.respostas||{};
+  const allQs=[...IASC_PERGUNTAS.bi,...IASC_PERGUNTAS.ep,...IASC_PERGUNTAS.epp,...IASC_PERGUNTAS.vp].filter(q=>!q.type);
+  const labels=allQs.map((_,i)=>`Q${i+1}`);
+  const data=allQs.map(q=>parseInt(respostas[q.id]||0));
+  const colors=allQs.map(q=>{
+    if(IASC_PERGUNTAS.bi.find(x=>x.id===q.id))return'rgba(29,158,117,0.7)';
+    if(IASC_PERGUNTAS.ep.find(x=>x.id===q.id))return'rgba(29,78,216,0.7)';
+    if(IASC_PERGUNTAS.epp.find(x=>x.id===q.id))return'rgba(124,58,237,0.7)';
+    return'rgba(217,119,6,0.7)';
+  });
+  const ctxBar=document.getElementById('chart-perguntas');
+  if(ctxBar)new Chart(ctxBar,{type:'bar',data:{labels,datasets:[{data,backgroundColor:colors,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:10,grid:{color:'rgba(0,0,0,0.05)'}}}}});
+  const freqVals=['Quase nunca','De vez em quando','Com muita frequência'];
+  const freqCounts=iascs.map(r=>r.respostas?.freq||'').reduce((acc,v)=>{if(v)acc[v]=(acc[v]||0)+1;return acc;},{});
+  const freqData=freqVals.map(v=>freqCounts[v]||0);
+  const ctxPie=document.getElementById('chart-freq');
+  if(ctxPie)new Chart(ctxPie,{type:'doughnut',data:{labels:freqVals,datasets:[{data:freqData,backgroundColor:['#fee2e2','#fef3c7','#dcfce7'],borderColor:['#dc2626','#d97706','#16a34a'],borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+  const leg=document.getElementById('freq-legend');
+  if(leg)leg.innerHTML=freqVals.map((v,i)=>`<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem"><div style="width:12px;height:12px;border-radius:50%;background:${['#dc2626','#d97706','#16a34a'][i]};flex-shrink:0"></div><span>${v}: <strong>${freqData[i]}</strong></span></div>`).join('');
+}
+
+function abrirIASCFinal(empId){
+  openModal('Registrar IASC final',`<div class="alert alert-green">Para registrar o IASC final, compartilhe o link do formulário com os participantes e importe os resultados manualmente após receber as respostas.</div><div style="font-size:13px;color:var(--text-muted)">Funcionalidade de importação de IASC final em desenvolvimento.</div>`,
+  [{label:'Fechar',action:closeModal,secondary:true}]);
+}
+
+async function gerarCodigoEmp(id){const emps=await getEmps();const emp=emps.find(e=>e.id===id);if(!emp)return;emp.codigoPortal=gerarCodigoEmpresa(emp.nome);await saveEmps(emps);verEmp(id);}
+
+async function openEmpModal(id){
+  const emps=await getEmps();const emp=id?emps.find(e=>e.id===id):null;
+  openModal(id?'Editar empresa':'Nova empresa',`<div class="form-grid">
+    <div class="form-group full"><label class="form-label">Nome *</label><input class="form-input" id="em-nome" value="${emp?.nome||''}" placeholder="Nome da empresa"></div>
+    <div class="form-group"><label class="form-label">CNPJ</label><input class="form-input" id="em-cnpj" value="${emp?.cnpj||''}"></div>
+    <div class="form-group"><label class="form-label">Setor</label><input class="form-input" id="em-setor" value="${emp?.setor||''}"></div>
+    <div class="form-group"><label class="form-label">Instagram</label><input class="form-input" id="em-ig" value="${emp?.instagram||''}" placeholder="@empresa"></div>
+    <div class="form-group"><label class="form-label">Contato</label><input class="form-input" id="em-contato" value="${emp?.contato||''}"></div>
+    <div class="form-group"><label class="form-label">E-mail</label><input class="form-input" id="em-email" value="${emp?.email||''}"></div>
+    <div class="form-group"><label class="form-label">Telefone</label><input class="form-input" id="em-tel" value="${emp?.telefone||''}"></div>
+    <div class="form-group"><label class="form-label">Cidade</label><input class="form-input" id="em-cidade" value="${emp?.cidade||''}"></div>
+    <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="em-status"><option value="ativo" ${(!emp||emp.status==='ativo')?'selected':''}>Ativo</option><option value="inativo" ${emp?.status==='inativo'?'selected':''}>Inativo</option></select></div>
+    <div class="form-group full"><label class="form-label">Observações</label><textarea class="form-input" id="em-obs">${emp?.obs||''}</textarea></div>
+  </div>`,[{label:'Cancelar',action:closeModal,secondary:true},{label:id?'Salvar':'Cadastrar',action:async()=>{
+    const nome=document.getElementById('em-nome').value.trim();if(!nome){await dlgAlert('Nome obrigatorio.');return;}
+    const ig=document.getElementById('em-ig').value.trim().replace('@','');
+    const newEmp={id:id||Date.now().toString(),nome,cnpj:document.getElementById('em-cnpj').value.trim(),setor:document.getElementById('em-setor').value.trim(),instagram:ig,contato:document.getElementById('em-contato').value.trim(),email:document.getElementById('em-email').value.trim(),telefone:document.getElementById('em-tel').value.trim(),cidade:document.getElementById('em-cidade').value.trim(),status:document.getElementById('em-status').value,obs:document.getElementById('em-obs').value.trim(),codigoPortal:emp?.codigoPortal||''};
+    const emps=await getEmps();const isEditEmp=!!id;
+    if(isEditEmp){const i=emps.findIndex(e=>e.id===id);if(i>-1){const old=emps[i];const ch=[];if(old.nome!==newEmp.nome)ch.push('nome');if(old.contato!==newEmp.contato)ch.push('responsavel');if(old.status!==newEmp.status)ch.push('status');emps[i]=newEmp;await saveEmps(emps);await logAction('editou','Empresa',newEmp.nome+(ch.length?' — alterou: '+ch.join(', '):''));}}else{emps.push(newEmp);await saveEmps(emps);await logAction('criou','Empresa',newEmp.nome);}
+    closeModal();loadPage('empresas');
+  }}]);
+}
+
+async function pgPSA(container){
+  document.getElementById('topbar-actions').innerHTML=`<button class="btn btn-green" onclick="openPSAModal()">+ Novo PSA</button>`;
+  const [psas,emps,eqs]=await Promise.all([getPSAs(),getEmps(),getEqs()]);
+  const en=id=>{const e=emps.find(x=>x.id===id);return e?e.nome:'—';};const qn=id=>{const e=eqs.find(x=>x.id===id);return e?e.nome:'—';};
+  container.innerHTML=`<div class="page">${psas.length===0?`<div class="card"><div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Nenhum programa</div></div></div>`:
+  `<div style="display:flex;flex-direction:column;gap:0.75rem">${psas.map(psa=>`<div class="card-plain">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem">
+      <div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem"><div style="font-weight:600;font-size:15px">${psa.nome}</div><span class="badge ${psa.status==='ativo'?'badge-green':'badge-gray'}">${psa.status}</span></div>
+        <div style="font-size:12px;color:var(--text-muted)">${en(psa.empresaId)} · ${qn(psa.equipeId)} · ${psa.frequencia||''} ${psa.duracao?'· '+psa.duracao+'/encontro':''}</div>
+        ${psa.docs&&psa.docs.length>0?`<div class="tag-list">${psa.docs.map(d=>`<span class="tag">📎 ${d}</span>`).join('')}</div>`:''}
+      </div>
+      <div style="display:flex;gap:0.5rem;flex-shrink:0"><button class="btn btn-sm" onclick="openPSAModal(null,'${psa.id}')">Editar</button><button class="btn btn-sm btn-danger" onclick="delPSA('${psa.id}')">×</button></div>
+    </div>
+  </div>`).join('')}</div>`}</div>`;
+}
+async function openPSAModal(empPreId,psaId){
+  const [emps,eqs,psas,mats]=await Promise.all([getEmps(),getEqs(),getPSAs(),getMats()]);const psa=psaId?psas.find(p=>p.id===psaId):null;
+  openModal(psaId?'Editar PSA':'Novo PSA',`<div class="form-grid">
+    <div class="form-group full"><label class="form-label">Nome *</label><input class="form-input" id="ps-nome" value="${psa?.nome||''}" placeholder="Ex: PSA ATESeg 2026"></div>
+    <div class="form-group"><label class="form-label">Empresa *</label><select class="form-select" id="ps-emp"><option value="">Selecione</option>${emps.map(e=>`<option value="${e.id}" ${(psa?.empresaId===e.id||empPreId===e.id)?'selected':''}>${e.nome}</option>`).join('')}</select></div>
+    <div class="form-group"><label class="form-label">Equipe</label><select class="form-select" id="ps-eq"><option value="">Selecione</option>${eqs.map(e=>`<option value="${e.id}" ${psa?.equipeId===e.id?'selected':''}>${e.nome}</option>`).join('')}</select></div>
+    <div class="form-group"><label class="form-label">Frequência</label><select class="form-select" id="ps-freq">${['1 encontro/mês','2 encontros/mês','3 encontros/mês','4 encontros/mês'].map(f=>`<option ${psa?.frequencia===f?'selected':''}>${f}</option>`).join('')}</select></div>
+    <div class="form-group"><label class="form-label">Duração por encontro</label><select class="form-select" id="ps-dur"><option value="">—</option>${['30 minutos','45 minutos','1 hora','1h30','2 horas','2h30','3 horas'].map(d=>`<option ${psa?.duracao===d?'selected':''}>${d}</option>`).join('')}</select></div>
+    <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="ps-st"><option value="ativo" ${(!psa||psa.status==='ativo')?'selected':''}>Ativo</option><option value="inativo" ${psa?.status==='inativo'?'selected':''}>Inativo</option><option value="encerrado" ${psa?.status==='encerrado'?'selected':''}>Encerrado</option></select></div>
+    <div class="form-group full"><label class="form-label">Descrição</label><textarea class="form-input" id="ps-desc">${psa?.descricao||''}</textarea></div>
+    <div class="form-group full"><label class="form-label">Documentos / links</label><div style="display:flex;gap:0.5rem;margin-bottom:0.5rem"><input class="form-input" id="ps-doc-in" placeholder="Nome ou link"><button class="btn btn-sm btn-green" onclick="addDoc()">+</button></div><div id="ps-docs" class="tag-list">${(psa?.docs||[]).map(d=>`<span class="tag">📎 ${d} <span class="tag-remove" onclick="this.parentElement.remove()">×</span></span>`).join('')}</div></div>
+    <div class="form-group full"><label class="form-label">Adicionar da biblioteca de materiais</label><select class="form-select" id="ps-mat-sel"><option value="">Selecionar material...</option>${mats.map(m=>`<option value="${m.id}">[${m.tipo}] ${m.titulo}</option>`).join('')}</select><button class="btn btn-sm btn-green" style="margin-top:0.5rem" onclick="addMatFromLib()">Adicionar</button></div>
+  </div>`,[{label:'Cancelar',action:closeModal,secondary:true},{label:psaId?'Salvar':'Criar',action:async()=>{
+    const nome=document.getElementById('ps-nome').value.trim();const empId=document.getElementById('ps-emp').value;if(!nome||!empId){await dlgAlert('Nome e empresa obrigatorios.');return;}
+    const docs=Array.from(document.querySelectorAll('#ps-docs .tag')).map(t=>t.textContent.replace('×','').replace('📎 ','').trim()).filter(Boolean);
+    const np={id:psaId||Date.now().toString(),nome,empresaId:empId,equipeId:document.getElementById('ps-eq').value,frequencia:document.getElementById('ps-freq').value,duracao:document.getElementById('ps-dur').value,status:document.getElementById('ps-st').value,descricao:document.getElementById('ps-desc').value.trim(),docs};
+    const psas=await getPSAs();const isEditPSA=!!psaId;if(isEditPSA){const i=psas.findIndex(p=>p.id===psaId);if(i>-1)psas[i]=np;}else psas.push(np);await savePSAs(psas);const empNomePSA=(await getEmps()).find(e=>e.id===empId)?.nome||empId;await logAction(isEditPSA?'editou':'criou','PSA',np.nome+' — '+empNomePSA);closeModal();loadPage('psa');
+  }}]);
+}
+function addDoc(){const i=document.getElementById('ps-doc-in');if(!i.value.trim())return;const t=document.createElement('span');t.className='tag';t.innerHTML=`📎 ${i.value.trim()} <span class="tag-remove" onclick="this.parentElement.remove()">×</span>`;document.getElementById('ps-docs').appendChild(t);i.value='';}
+async function addMatFromLib(){const sel=document.getElementById('ps-mat-sel');const id=sel.value;if(!id)return;const mats=await getMats();const m=mats.find(x=>x.id===id);if(!m)return;const t=document.createElement('span');t.className='tag';t.innerHTML=`📎 ${m.titulo}${m.link?' ('+m.link+')':''} <span class="tag-remove" onclick="this.parentElement.remove()">×</span>`;document.getElementById('ps-docs').appendChild(t);}
+async function delPSA(id){if(!await dlgConfirm('Remover?','Confirmar exclusao'))return;const items=await getPSAs();const found=items.find(x=>x.id===id);await savePSAs(items.filter(x=>x.id!==id));await logAction('excluiu','PSA',found?.nome||id);loadPage('psa');}
+
+async function pgCalendario(container){
+  document.getElementById('topbar-actions').innerHTML=`<button class="btn btn-green" onclick="openEvtModal()">+ Novo encontro</button>`;
+  const evts=await getEvts();renderCal(container,evts,calendarDate);
+}
+function renderCal(container,evts,date){
+  const y=date.getFullYear(),m=date.getMonth();
+  const fd=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate();
+  const hoje=new Date();
+  const mesEvts=evts.filter(e=>{const d=parseLocalDate(e.data);return d.getMonth()===m&&d.getFullYear()===y;}).sort((a,b)=>parseLocalDate(a.data)-parseLocalDate(b.data));
+  const evtsByDay={};mesEvts.forEach(e=>{const d=parseLocalDate(e.data).getDate();(evtsByDay[d]=evtsByDay[d]||[]).push(e);});
+  container.innerHTML=`<div class="page"><div class="cal-month-nav"><button class="cal-nav-btn" onclick="chgMes(-1)">‹</button><div class="cal-month-label">${MESES[m]} ${y}</div><button class="cal-nav-btn" onclick="chgMes(1)">›</button></div>
+    <div class="card-plain" style="margin-bottom:1.5rem"><div class="cal-grid">${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(d=>`<div class="cal-head">${d}</div>`).join('')}${Array(fd).fill('<div></div>').join('')}${Array.from({length:dim},(_,i)=>{const d=i+1;const isT=d===hoje.getDate()&&m===hoje.getMonth()&&y===hoje.getFullYear();const de=evtsByDay[d]||[];return`<div class="cal-day ${isT?'today':''}"><div class="cal-day-num">${d}</div>${de.slice(0,2).map(e=>`<div class="cal-event-dot">${e.titulo}</div>`).join('')}${de.length>2?`<div style="font-size:9px;color:var(--text-muted);padding:1px 4px">+${de.length-2}</div>`:''}</div>`;}).join('')}</div></div>
+    <div style="font-size:14px;font-weight:600;margin-bottom:0.75rem">Encontros em ${MESES[m]} (${mesEvts.length})</div>
+    ${mesEvts.length===0?'<div class="empty"><div class="empty-desc">Nenhum encontro.</div></div>':mesEvts.map(e=>{const d=parseLocalDate(e.data);return`<div class="event-item" style="align-items:flex-start">
+      <div class="ev-date" style="padding-top:2px"><div class="ev-day">${d.getDate()}</div><div class="ev-mon">${MESES[d.getMonth()].substring(0,3)}</div></div>
+      <div class="ev-info" style="flex:1"><div class="ev-title">${e.titulo}</div><div class="ev-meta">${e.empresa||''} ${e.horario?'· '+e.horario:''} ${e.duracao?'('+e.duracao+')':''} ${e.local?'· '+e.local:''}</div>
+        ${e.foto?`<img src="${e.foto}" style="width:100%;max-height:200px;object-fit:cover;border-radius:var(--radius);margin-top:0.5rem">`:''}
+        <div style="display:flex;gap:0.5rem;margin-top:0.5rem"><button class="btn btn-sm" onclick="addFotoEvt('${e.id}')">📷 ${e.foto?'Alterar':'Adicionar foto'}</button><button class="btn btn-sm btn-danger" onclick="delEvt('${e.id}')">Remover</button></div>
+      </div>
+    </div>`;}).join('')}
+  </div>`;
+}
+async function chgMes(dir){calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+dir,1);const evts=await getEvts();renderCal(document.getElementById('pages-container'),evts,calendarDate);}
+async function addFotoEvt(id){const url=prompt('URL da foto do evento:');if(url===null)return;const evts=await getEvts();const e=evts.find(x=>x.id===id);if(!e)return;e.foto=url.trim();await saveEvts(evts);const evtsUp=await getEvts();renderCal(document.getElementById('pages-container'),evtsUp,calendarDate);}
+async function openEvtModal(){
+  const [emps,eqs]=await Promise.all([getEmps(),getEqs()]);
+  openModal('Novo encontro',`<div class="form-grid">
+    <div class="form-group full"><label class="form-label">Título *</label><input class="form-input" id="ev-tit" placeholder="Ex: Encontro de Nutrição — ATESeg"></div>
+    <div class="form-group"><label class="form-label">Data *</label><input class="form-input" id="ev-data" type="date"></div>
+    <div class="form-group"><label class="form-label">Horário</label><input class="form-input" id="ev-hora" type="time"></div>
+    <div class="form-group"><label class="form-label">Duração</label><select class="form-select" id="ev-dur"><option value="">—</option>${['30 minutos','45 minutos','1 hora','1h30','2 horas','2h30','3 horas'].map(d=>`<option>${d}</option>`).join('')}</select></div>
+    <div class="form-group"><label class="form-label">Empresa</label><select class="form-select" id="ev-emp"><option value="">Selecione</option>${emps.map(e=>`<option value="${e.id}">${e.nome}</option>`).join('')}</select></div>
+    <div class="form-group"><label class="form-label">Equipe</label><select class="form-select" id="ev-eq"><option value="">Selecione</option>${eqs.map(e=>`<option value="${e.id}">${e.nome}</option>`).join('')}</select></div>
+    <div class="form-group full"><label class="form-label">Local</label><input class="form-input" id="ev-local" placeholder="Sala de reunião..."></div>
+    <div class="form-group full"><label class="form-label">Descrição / pauta</label><textarea class="form-input" id="ev-desc"></textarea></div>
+  </div>`,[{label:'Cancelar',action:closeModal,secondary:true},{label:'Agendar',action:async()=>{
+    const t=document.getElementById('ev-tit').value.trim(),d=document.getElementById('ev-data').value;if(!t||!d){await dlgAlert('Titulo e data obrigatorios.');return;}
+    const es=document.getElementById('ev-emp'),qs=document.getElementById('ev-eq');
+    const ev={id:Date.now().toString(),titulo:t,data:d,horario:document.getElementById('ev-hora').value,duracao:document.getElementById('ev-dur').value,empresaId:es.value,empresa:es.options[es.selectedIndex]?.text||'',equipeId:qs.value,equipe:qs.options[qs.selectedIndex]?.text||'',local:document.getElementById('ev-local').value.trim(),descricao:document.getElementById('ev-desc').value.trim(),foto:''};
+    const evts=await getEvts();evts.push(ev);await saveEvts(evts);await logAction('agendou','Evento',ev.titulo+' — '+(ev.empresa||'')+' em '+ev.data);closeModal();loadPage('calendario');checkNotif();
+  }}]);
+}
+async function delEvt(id){if(!await dlgConfirm('Remover?','Confirmar exclusao'))return;const items=await getEvts();const found=items.find(x=>x.id===id);await saveEvts(items.filter(x=>x.id!==id));await logAction('excluiu','Evento',found?.titulo||id);loadPage('calendario');}
+
+async function pgParticipantes(container){
+  const [parts,emps]=await Promise.all([getParts(),getEmps()]);
+  const pend=parts.filter(p=>p.status==='pendente');
+  let html=`<div class="page">${pend.length>0?`<div class="alert alert-amber">Há ${pend.length} cadastro(s) pendente(s).</div>`:''}`;
+  if(parts.length===0)html+=`<div class="card"><div class="empty"><div class="empty-icon">👤</div><div class="empty-title">Nenhum participante</div></div></div>`;
+  else{const comEmp=emps.map(emp=>({emp,parts:parts.filter(p=>p.empresaId===emp.id)})).filter(x=>x.parts.length>0);const semEmp=parts.filter(p=>!emps.find(e=>e.id===p.empresaId));comEmp.forEach(({emp,parts:ep})=>{html+=`<div style="margin-bottom:1.5rem"><div class="empresa-group-header">🏢 ${emp.nome}<span>${ep.length} participante${ep.length!==1?'s':''}</span></div>${mkPartTable(ep)}</div>`;});if(semEmp.length>0)html+=`<div style="margin-bottom:1.5rem"><div class="empresa-group-header" style="background:var(--amber-bg);color:var(--amber)">Sem empresa<span>${semEmp.length}</span></div>${mkPartTable(semEmp)}</div>`;}
+  html+=`</div>`;container.innerHTML=html;
+}
+function mkPartTable(parts){return`<div class="card-plain"><div class="table-wrap"><table><thead><tr><th>Nome</th><th>E-mail</th><th>Cargo</th><th>Cadastro</th><th>Status</th><th>Ações</th></tr></thead><tbody>${parts.map(p=>`<tr><td><div style="display:flex;align-items:center;gap:0.5rem"><div class="avatar avatar-sm">${p.nome.charAt(0)}</div>${p.nome}</div></td><td style="color:var(--text-muted)">${p.email}</td><td style="color:var(--text-muted)">${p.cargo||'—'}</td><td style="color:var(--text-muted)">${p.dataRegistro||'—'}</td><td><span class="badge ${p.status==='ativo'?'badge-green':p.status==='pendente'?'badge-amber':'badge-gray'}">${p.status}</span></td><td><div style="display:flex;gap:0.4rem"><button class="btn btn-sm" onclick="editPart('${p.id}')">Editar</button><button class="btn btn-sm btn-danger" onclick="delPart('${p.id}')">×</button></div></td></tr>`).join('')}</tbody></table></div></div>`;}
+async function editPart(id){const [parts,emps]=await Promise.all([getParts(),getEmps()]);const p=parts.find(x=>x.id===id);if(!p)return;
+  openModal('Editar participante',`<div class="form-grid"><div class="form-group full"><label class="form-label">Nome</label><input class="form-input" id="ep-n" value="${p.nome||''}"></div><div class="form-group"><label class="form-label">E-mail</label><input class="form-input" id="ep-e" value="${p.email||''}"></div><div class="form-group"><label class="form-label">Cargo</label><input class="form-input" id="ep-c" value="${p.cargo||''}"></div><div class="form-group"><label class="form-label">Empresa</label><select class="form-select" id="ep-emp"><option value="">Selecione</option>${emps.map(e=>`<option value="${e.id}" ${p.empresaId===e.id?'selected':''}>${e.nome}</option>`).join('')}</select></div><div class="form-group"><label class="form-label">Status</label><select class="form-select" id="ep-st"><option value="ativo" ${p.status==='ativo'?'selected':''}>Ativo</option><option value="pendente" ${p.status==='pendente'?'selected':''}>Pendente</option><option value="inativo" ${p.status==='inativo'?'selected':''}>Inativo</option></select></div></div>`,
+  [{label:'Cancelar',action:closeModal,secondary:true},{label:'Salvar',action:async()=>{const parts=await getParts();const pi=parts.find(x=>x.id===id);if(!pi)return;pi.nome=document.getElementById('ep-n').value.trim();pi.email=document.getElementById('ep-e').value.trim();pi.cargo=document.getElementById('ep-c').value.trim();pi.empresaId=document.getElementById('ep-emp').value;pi.status=document.getElementById('ep-st').value;await saveParts(parts);closeModal();loadPage('participantes');}}]);
+}
+async function ativarPart(id){const parts=await getParts();const p=parts.find(x=>x.id===id);if(p){p.status='ativo';await saveParts(parts);await logAction('ativou','Participante',p.nome);loadPage('dashboard');}}
+async function delPart(id){if(!await dlgConfirm('Remover?','Confirmar exclusao'))return;const items=await getParts();const found=items.find(x=>x.id===id);await saveParts(items.filter(x=>x.id!==id));await logAction('excluiu','Participante',found?.nome||id);loadPage('participantes');}
+
+// BIBLIOTECA DE MATERIAIS (ADM)
+async function pgMateriais(container){
+  document.getElementById('topbar-actions').innerHTML=`<button class="btn btn-green" onclick="openMatModal()">+ Novo material</button>`;
+  const [mats,emps]=await Promise.all([getMats(),getEmps()]);
+  const tipos=[{k:'exercicio',label:'Fichas de exercício',icon:'🏃'},{k:'nutricao',label:'Nutrição',icon:'🥗'},{k:'psicologia',label:'Psicologia',icon:'🧠'},{k:'geral',label:'Geral',icon:'📄'}];
+  container.innerHTML=`<div class="page">
+    <div class="alert alert-green" style="margin-bottom:1.5rem">Biblioteca compartilhada — materiais podem ser anexados a qualquer PSA ou disponibilizados diretamente no portal dos participantes.</div>
+    ${mats.length===0?`<div class="card"><div class="empty"><div class="empty-icon">📂</div><div class="empty-title">Nenhum material cadastrado</div></div></div>`:
+    tipos.map(t=>{const tMats=mats.filter(m=>m.tipo===t.k);if(!tMats.length)return'';
+      return`<div style="margin-bottom:1.5rem"><div style="font-size:14px;font-weight:600;margin-bottom:0.75rem">${t.icon} ${t.label} (${tMats.length})</div>
+        ${tMats.map(m=>`<div class="card-plain" style="margin-bottom:0.5rem;display:flex;align-items:center;gap:0.75rem">
+          <div style="flex:1"><div style="font-size:13px;font-weight:500">${m.titulo}</div><div style="font-size:11px;color:var(--text-muted)">${m.descricao||''} · ${m.global?'Todas as empresas':emps.find(e=>e.id===m.empresaId)?.nome||'—'}</div></div>
+          ${m.link?`<a href="${m.link}" target="_blank" class="btn btn-sm">Abrir</a>`:''}
+          <button class="btn btn-sm btn-danger" onclick="delMat('${m.id}')">×</button>
+        </div>`).join('')}
+      </div>`;}).join('')}
+  </div>`;
+}
+async function openMatModal(){
+  const emps=await getEmps();
+  openModal('Novo material — Biblioteca',`<div class="form-grid">
+    <div class="form-group full"><label class="form-label">Título *</label><input class="form-input" id="mt-tit" placeholder="Ex: Ficha de exercícios — Semana 1"></div>
+    <div class="form-group"><label class="form-label">Tipo *</label><select class="form-select" id="mt-tipo"><option value="exercicio">🏃 Ficha de exercício</option><option value="nutricao">🥗 Nutrição / cardápio</option><option value="psicologia">🧠 Psicologia</option><option value="geral">📄 Material geral</option></select></div>
+    <div class="form-group"><label class="form-label">Disponível para</label><select class="form-select" id="mt-emp"><option value="global">Todas as empresas</option>${emps.map(e=>`<option value="${e.id}">${e.nome}</option>`).join('')}</select></div>
+    <div class="form-group full"><label class="form-label">Link do material (PDF, Drive...)</label><input class="form-input" id="mt-link" placeholder="https://drive.google.com/..."></div>
+    <div class="form-group full"><label class="form-label">Descrição</label><textarea class="form-input" id="mt-desc" placeholder="Breve descrição"></textarea></div>
+  </div>`,[{label:'Cancelar',action:closeModal,secondary:true},{label:'Salvar na biblioteca',action:async()=>{
+    const titulo=document.getElementById('mt-tit').value.trim();if(!titulo){await dlgAlert('Titulo obrigatorio.');return;}
+    const empVal=document.getElementById('mt-emp').value;
+    const m={id:Date.now().toString(),titulo,tipo:document.getElementById('mt-tipo').value,link:document.getElementById('mt-link').value.trim(),descricao:document.getElementById('mt-desc').value.trim(),global:empVal==='global',empresaId:empVal==='global'?'':empVal,ts:Date.now()};
+    const mats=await getMats();mats.push(m);await saveMats(mats);await logAction('adicionou a biblioteca','Material',m.titulo+' — '+m.tipo);closeModal();loadPage('materiais');
+  }}]);
+}
+async function delMat(id){if(!await dlgConfirm('Remover?','Confirmar exclusao'))return;const items=await getMats();const found=items.find(x=>x.id===id);await saveMats(items.filter(x=>x.id!==id));await logAction('excluiu','Material',found?.titulo||id);loadPage('materiais');}
+
+// PROFISSIONAL PAGES
+async function pgInicio(container){
+  const [psas,evts,posts,profs]=await Promise.all([getPSAs(),getEvts(),getPosts(),getPrfs()]);
+  const prof=currentProfId?profs.find(p=>p.id===currentProfId):null;
+  const proxEvts=evts.filter(e=>parseLocalDate(e.data)>=new Date()).sort((a,b)=>parseLocalDate(a.data)-parseLocalDate(b.data)).slice(0,5);
+  const feedPosts=posts.filter(p=>p.tipo!=='material').sort((a,b)=>b.ts-a.ts);
+  container.innerHTML=`<div class="page">
+    ${proxEvts.length>0?`<div class="alert alert-amber">Você tem ${proxEvts.length} encontro(s) agendado(s) em breve.</div>`:''}
+    <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:1.5rem;align-items:start">
+      <div>
+        <div class="card" style="margin-bottom:1rem"><div class="card-title">Próximos encontros</div>${proxEvts.map(e=>{const d=parseLocalDate(e.data);return`<div class="event-item"><div class="ev-date"><div class="ev-day">${d.getDate()}</div><div class="ev-mon">${MESES[d.getMonth()].substring(0,3)}</div></div><div class="ev-info"><div class="ev-title">${e.titulo}</div><div class="ev-meta">${e.empresa||'—'} · ${e.horario||'—'} ${e.duracao?'('+e.duracao+')':''}</div></div></div>`;}).join('')||'<div class="empty"><div class="empty-desc">Nenhum agendado.</div></div>'}</div>
+        <div class="card"><div class="card-title">PSAs ativos</div>${psas.filter(p=>p.status==='ativo').map(p=>`<div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--border-light);font-size:13px"><span>${p.nome}</span><span class="badge badge-green">ativo</span></div>`).join('')||'<div class="empty"><div class="empty-desc">Nenhum.</div></div>'}</div>
+      </div>
+      <div>
+        <div class="post-compose">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem"><div class="avatar">${prof?.foto?`<img src="${prof.foto}">`:prof?prof.nome.charAt(0):'P'}</div><div style="font-size:13px;font-weight:500">${prof?.nome||'Profissional'}</div></div>
+          <textarea id="post-text" placeholder="Compartilhe algo com a equipe Alavo..." rows="3"></textarea>
+          <div style="display:flex;gap:0.5rem;margin-top:0.75rem;align-items:center;flex-wrap:wrap">
+            <input type="text" id="post-img" class="form-input" style="flex:1;min-width:120px;font-size:12px" placeholder="URL de imagem (opcional)">
+            <input type="text" id="post-doc" class="form-input" style="flex:1;min-width:120px;font-size:12px" placeholder="URL de PDF/doc (opcional)">
+            <button class="btn btn-green btn-sm" onclick="publicarPost()">Publicar</button>
+          </div>
+        </div>
+        <div class="timeline" id="feed-container">${feedPosts.length===0?'<div class="empty"><div class="empty-icon">📰</div><div class="empty-title">Seja o primeiro a publicar!</div></div>':feedPosts.map(p=>renderPostCard(p)).join('')}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderPostCard(p){
+  const dt=p.ts?new Date(p.ts).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+  return`<div class="post-card"><div class="post-header"><div class="avatar avatar-sm">${p.autor?p.autor.charAt(0):'A'}</div><div><div style="font-size:13px;font-weight:600">${p.autor||'Alavo'}</div><div style="font-size:11px;color:var(--text-muted)">${p.cargo||'Equipe Alavo'}</div></div><div style="margin-left:auto;font-size:11px;color:var(--text-muted)">${dt}</div></div>${p.texto?`<div class="post-body"><div class="post-text">${p.texto}</div></div>`:''}${p.imagem?`<img src="${p.imagem}" class="post-img" onerror="this.style.display='none'">`:''}${p.link?`<a href="${p.link}" target="_blank" class="post-doc">📎 ${p.titulo||'Documento'}</a>`:''}</div>`;
+}
+async function publicarPost(){
+  const texto=document.getElementById('post-text').value.trim();if(!texto){await dlgAlert('Escreva algo para publicar.');return;}
+  const profs=await getPrfs();const prof=currentProfId?profs.find(p=>p.id===currentProfId):null;
+  const post={id:Date.now().toString(),tipo:'post',texto,imagem:document.getElementById('post-img').value.trim(),link:document.getElementById('post-doc').value.trim(),autor:prof?.nome||'Profissional',cargo:(prof?.especialidades||[prof?.especialidade]).filter(Boolean)[0]||'',profId:currentProfId,global:true,ts:Date.now()};
+  const posts=await getPosts();posts.push(post);await savePosts(posts);await logAction('publicou','Post',texto.substring(0,60));
+  document.getElementById('post-text').value='';document.getElementById('post-img').value='';document.getElementById('post-doc').value='';
+  const all=[post,...posts.filter(p=>p.tipo!=='material').sort((a,b)=>b.ts-a.ts).slice(1)];
+  document.getElementById('feed-container').innerHTML=all.map(p=>renderPostCard(p)).join('');
+}
+
+async function pgEcossistema(container){
+  const profs=await getPrfs();
+  container.innerHTML=`<div class="page"><div class="alert alert-green" style="margin-bottom:1.5rem">Conheça os profissionais que fazem parte da família Alavo. Clique para ver o perfil.</div>
+    <div class="prof-grid">${profs.map(p=>`<div class="prof-community-card" onclick="verProfCom('${p.id}')">
+      <div class="avatar avatar-xl" style="margin:0 auto 0.75rem">${p.foto?`<img src="${p.foto}">`:p.nome.charAt(0)}</div>
+      <div style="font-weight:600;font-size:14px;margin-bottom:0.25rem">${p.nome}</div>
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:3px">${(p.especialidades||[p.especialidade]).filter(Boolean).map(s=>`<span class="badge badge-green" style="font-size:10px">${s}</span>`).join('')}</div>
+      ${p.id===currentProfId?'<div style="font-size:11px;color:var(--green);margin-top:0.5rem;font-weight:500">Você</div>':''}
+    </div>`).join('')||'<div class="empty"><div class="empty-icon">👥</div><div class="empty-title">Nenhum profissional cadastrado</div></div>'}</div>
+  </div>`;
+}
+async function verProfCom(id){const profs=await getPrfs();const p=profs.find(x=>x.id===id);if(!p)return;
+  openModal(p.nome,`<div style="text-align:center;padding:0.5rem 0 1rem"><div class="avatar avatar-xl" style="margin:0 auto 0.75rem">${p.foto?`<img src="${p.foto}">`:p.nome.charAt(0)}</div><div style="font-size:17px;font-weight:600">${p.nome}</div><div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:6px">${(p.especialidades||[p.especialidade]).filter(Boolean).map(s=>`<span class="badge badge-green">${s}</span>`).join('')}</div></div>
+    <div style="font-size:13px"><div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border-light)"><span style="color:var(--text-muted)">Na Alavo desde</span><span>${p.dataCadastro||'—'}</span></div>${p.registro?`<div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border-light)"><span style="color:var(--text-muted)">Registro</span><span>${p.registro}</span></div>`:''}</div>`,
+  [{label:'Fechar',action:closeModal,secondary:true}]);
+}
+
+async function pgMeuPerfil(container){
+  const [profs,psas,emps,parts]=await Promise.all([getPrfs(),getPSAs(),getEmps(),getParts()]);
+  const prof=currentProfId?profs.find(p=>p.id===currentProfId):null;
+  if(!prof){container.innerHTML=`<div class="page"><div class="alert alert-green">Faça login com seu código pessoal para ver seu perfil.</div></div>`;return;}
+  const myPSAs=psas.filter(p=>p.status==='ativo');
+  container.innerHTML=`<div class="page"><div style="display:grid;grid-template-columns:240px 1fr;gap:1.5rem;align-items:start">
+    <div class="card-plain" style="text-align:center"><div class="avatar avatar-xl" style="margin:0 auto 0.75rem">${prof.foto?`<img src="${prof.foto}">`:prof.nome.charAt(0)}</div>
+      <div style="font-size:16px;font-weight:600;margin-bottom:0.5rem">${prof.nome}</div>
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-bottom:0.75rem">${(prof.especialidades||[prof.especialidade]).filter(Boolean).map(s=>`<span class="badge badge-green">${s}</span>`).join('')}</div>
+      <div style="font-size:12px;color:var(--text-muted);line-height:1.8">${prof.email?`<div>${prof.email}</div>`:''}${prof.telefone?`<div>${prof.telefone}</div>`:''}${prof.registro?`<div>${prof.registro}</div>`:''}${prof.dataCadastro?`<div style="margin-top:0.5rem;font-size:10px">Na Alavo desde ${prof.dataCadastro}</div>`:''}</div>
+      ${prof.codigo?`<div style="margin-top:0.75rem"><div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Seu código</div><div class="code-box" style="font-size:0.85rem">${prof.codigo}</div></div>`:''}
+      ${prof.contrato?`<div style="margin-top:0.75rem"><a href="${prof.contrato}" target="_blank" class="btn btn-sm btn-green" style="width:100%;justify-content:center">📎 Meu contrato</a></div>`:''}
+    </div>
+    <div>${myPSAs.map(psa=>{const emp=emps.find(e=>e.id===psa.empresaId);const empParts=parts.filter(p=>p.empresaId===psa.empresaId);return`<div class="card" style="margin-bottom:1rem"><div style="display:flex;justify-content:space-between;margin-bottom:0.75rem"><div><div style="font-size:15px;font-weight:600">${psa.nome}</div><div style="font-size:12px;color:var(--text-muted)">${psa.frequencia||''} ${psa.duracao?'· '+psa.duracao+'/encontro':''}</div></div><span class="badge badge-green">ativo</span></div>
+      ${emp?`<div style="border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem;display:flex;align-items:center;gap:0.75rem"><div class="avatar avatar-lg" style="border-radius:var(--radius)">${emp.nome.charAt(0)}</div><div style="flex:1"><div style="font-weight:600">${emp.nome}</div><div style="font-size:12px;color:var(--text-muted)">${emp.setor||''} · ${emp.cidade||''}</div>${emp.instagram?`<div style="font-size:11px;color:var(--green)">@${emp.instagram}</div>`:''}</div><div style="text-align:center"><div style="font-size:22px;font-weight:700;color:var(--green)">${empParts.length}</div><div style="font-size:10px;color:var(--text-muted)">participantes</div></div></div>`:''}
+    </div>`;}).join('')||'<div class="card"><div class="empty"><div class="empty-desc">Nenhum programa ativo.</div></div></div>'}</div>
+  </div></div>`;
+}
+
+// PROGRAMAS & EMPRESAS (PROF) — WITH MATERIAL PUBLISHING BY SPECIALTY
+async function pgEmpresaEquipe(container){
+  document.getElementById('topbar-actions').innerHTML=`<button class="btn btn-green" onclick="openPubMatModal()">+ Publicar material</button>`;
+  const [psas,emps,profs]=await Promise.all([getPSAs(),getEmps(),getPrfs()]);
+  const prof=currentProfId?profs.find(p=>p.id===currentProfId):null;
+  const ativos=psas.filter(p=>p.status==='ativo').map(p=>{const emp=emps.find(e=>e.id===p.empresaId);return{...p,empNome:emp?.nome||'—',empId:emp?.id||''};});
+  container.innerHTML=`<div class="page">${ativos.length===0?`<div class="card"><div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Nenhum programa ativo</div></div></div>`:
+  ativos.map(psa=>`<div class="card-plain" style="margin-bottom:1rem">
+    <div style="display:flex;justify-content:space-between;margin-bottom:0.75rem"><div><div style="font-size:15px;font-weight:600">${psa.nome}</div><div style="font-size:12px;color:var(--text-muted)">${psa.empNome} · ${psa.frequencia||''} ${psa.duracao?'· '+psa.duracao:''}</div></div><span class="badge badge-green">ativo</span></div>
+    ${psa.docs&&psa.docs.length>0?`<div class="tag-list">${psa.docs.map(d=>`<span class="tag">📎 ${d}</span>`).join('')}</div>`:''}
+    <div style="display:flex;gap:0.5rem;margin-top:0.75rem">
+      <button class="btn btn-sm" onclick="addDocPSA('${psa.id}')">+ Doc no programa</button>
+      <button class="btn btn-sm btn-green" onclick="openPubMatModal('${psa.empId}','${psa.nome}')">📤 Publicar material para empresa</button>
+    </div>
+  </div>`).join('')}</div>`;
+}
+
+async function openPubMatModal(empresaId, psaNome){
+  const [profs,mats,emps]=await Promise.all([getPrfs(),getMats(),getEmps()]);
+  const prof=currentProfId?profs.find(p=>p.id===currentProfId):null;
+  const esp=(prof?.especialidades||[prof?.especialidade]).filter(Boolean)[0]||'Geral';
+  const empNome=empresaId?emps.find(e=>e.id===empresaId)?.nome||'Empresa':'Todas';
+  const tipos=[{k:'exercicio',l:'Ficha de exercício'},{k:'nutricao',l:'Nutrição / cardápio'},{k:'psicologia',l:'Psicologia'},{k:'geral',l:'Material geral'}];
+  openModal(`Publicar material${psaNome?' — '+psaNome:''}`,`
+    <div class="alert alert-green">Este material ficará disponível no portal dos participantes de <strong>${empNome}</strong>, organizado por especialidade.</div>
+    <div class="form-grid">
+      <div class="form-group full"><label class="form-label">Título *</label><input class="form-input" id="pm-tit" placeholder="Ex: Plano alimentar semanal"></div>
+      <div class="form-group"><label class="form-label">Tipo / especialidade *</label><select class="form-select" id="pm-tipo">${tipos.map(t=>`<option value="${t.k}" ${esp.toLowerCase().includes(t.k.substring(0,4))?'selected':''}>${t.l}</option>`).join('')}</select></div>
+      <div class="form-group"><label class="form-label">Link (Drive, PDF...)</label><input class="form-input" id="pm-link" placeholder="https://drive.google.com/..."></div>
+      <div class="form-group full"><label class="form-label">Descrição</label><textarea class="form-input" id="pm-desc" placeholder="Sobre este material..."></textarea></div>
+      <div class="form-group full"><label class="form-label">Texto de publicação (aparecerá no feed)</label><textarea class="form-input" id="pm-post" placeholder="Ex: Novo cardápio disponível para vocês! Semana 3 do programa. 🥗">${psaNome?'Novo material disponível para o '+psaNome+'! Confiram o conteúdo abaixo. 💚':''}</textarea></div>
+    </div>
+    <div style="margin-top:0.5rem"><label class="form-label">Ou selecionar da biblioteca</label><select class="form-select" id="pm-lib" style="margin-top:0.3rem"><option value="">Usar material novo acima</option>${mats.map(m=>`<option value="${m.id}">[${m.tipo}] ${m.titulo}</option>`).join('')}</select></div>
+  `,[{label:'Cancelar',action:closeModal,secondary:true},{label:'Publicar',action:async()=>{
+    const libSel=document.getElementById('pm-lib').value;
+    let matId,matTitulo,matTipo,matLink,matDesc;
+    if(libSel){const mats2=await getMats();const m=mats2.find(x=>x.id===libSel);if(!m)return;matId=m.id;matTitulo=m.titulo;matTipo=m.tipo;matLink=m.link;matDesc=m.descricao;}
+    else{matTitulo=document.getElementById('pm-tit').value.trim();matTipo=document.getElementById('pm-tipo').value;matLink=document.getElementById('pm-link').value.trim();matDesc=document.getElementById('pm-desc').value.trim();}
+    if(!matTitulo){await dlgAlert('Titulo obrigatorio.');return;}
+    const textoPost=document.getElementById('pm-post').value.trim();
+    if(!libSel){const newMat={id:Date.now().toString(),titulo:matTitulo,tipo:matTipo,link:matLink,descricao:matDesc,global:!empresaId,empresaId:empresaId||'',ts:Date.now()};const mats2=await getMats();mats2.push(newMat);await saveMats(mats2);matId=newMat.id;}
+    if(textoPost){const post={id:'pub-'+Date.now(),tipo:'material_pub',titulo:matTitulo,texto:textoPost,link:matLink,autor:prof?.nome||'Equipe Alavo',cargo:esp,profId:currentProfId,global:!empresaId,empresaId:empresaId||'',ts:Date.now()};const posts=await getPosts();posts.push(post);await savePosts(posts);}
+    closeModal();loadPage('empresa-equipe');
+  }}]);
+}
+
+async function addDocPSA(psaId){openModal('Adicionar documento',`<div class="form-group"><label class="form-label">Nome ou link</label><input class="form-input" id="doc-in" placeholder="Ex: Ficha semana 1"></div>`,
+  [{label:'Cancelar',action:closeModal,secondary:true},{label:'Adicionar',action:async()=>{const n=document.getElementById('doc-in').value.trim();if(!n)return;const psas=await getPSAs();const psa=psas.find(p=>p.id===psaId);if(!psa)return;psa.docs=psa.docs||[];psa.docs.push(n);await savePSAs(psas);closeModal();loadPage('empresa-equipe');}}]);}
+
+async function pgCalendarioProf(container){
+  const evts=await getEvts();renderCalProf(container,evts,calendarDate);
+}
+
+function openModal(title,body,buttons){
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-body').innerHTML=body;
+  const f=document.getElementById('modal-footer');f.innerHTML='';
+  (buttons||[]).forEach(btn=>{const el=document.createElement('button');el.textContent=btn.label;el.className=btn.secondary?'btn':'btn btn-green';el.onclick=btn.action;f.appendChild(el);});
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(e){if(e&&e.target!==document.getElementById('modal-overlay'))return;document.getElementById('modal-overlay').classList.remove('open');window._sel=null;window._chips=null;}
+
+async function checkNotif(){const evts=await getEvts();const hoje=new Date();const em3=new Date(hoje);em3.setDate(hoje.getDate()+3);const prox=evts.filter(e=>{const d=parseLocalDate(e.data);return d>=hoje&&d<=em3;});const b=document.getElementById('notif-banner');if(prox.length>0){const p=prox[0];document.getElementById('notif-text').textContent=`Lembrete: "${p.titulo}" em ${parseLocalDate(p.data).toLocaleDateString('pt-BR')} ${p.horario?'às '+p.horario:''}`;b.classList.remove('hidden');}else b.classList.add('hidden');}
+
+// ── BACKUP & EXPORT ────────────────────────────────────────────
+async function pgBackup(container){
+  const [profs,eqs,emps,parts,psas,evts,mats,iascs,hist]=await Promise.all([getPrfs(),getEqs(),getEmps(),getParts(),getPSAs(),getEvts(),getMats(),getIASCRespostas(),getHistorico()]);
+  const total=profs.length+eqs.length+emps.length+parts.length+psas.length+evts.length+mats.length+iascs.length+hist.length;
+  container.innerHTML=`<div class="page" style="max-width:640px">
+    <div class="card" style="margin-bottom:1.5rem"><div class="card-title">Resumo dos dados</div>
+      <div class="stat-grid" style="margin-bottom:0">
+        <div class="stat-card"><div class="stat-num">${profs.length}</div><div class="stat-label">Profissionais</div></div>
+        <div class="stat-card"><div class="stat-num">${emps.length}</div><div class="stat-label">Empresas</div></div>
+        <div class="stat-card"><div class="stat-num">${parts.length}</div><div class="stat-label">Participantes</div></div>
+        <div class="stat-card"><div class="stat-num">${iascs.length}</div><div class="stat-label">Registros IASC</div></div>
+      </div></div>
+    <div class="card-plain" style="margin-bottom:1rem">
+      <div class="card-title">Exportar backup completo</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;line-height:1.6">Baixa um arquivo <strong>.json</strong> com todos os dados. <strong>Exporte antes de atualizar o app.</strong></div>
+      <div style="display:flex;gap:0.75rem;align-items:center"><button class="btn btn-green" onclick="exportarDados()">Exportar JSON agora</button><div style="font-size:12px;color:var(--text-muted)">${total} registros no total</div></div>
+    </div>
+    <div class="card-plain" style="margin-bottom:1rem">
+      <div class="card-title">Importar backup</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;line-height:1.6">Restaura um backup. <strong style="color:var(--red)">Atencao: substitui todos os dados atuais.</strong></div>
+      <button class="btn btn-green" onclick="document.getElementById('import-file').click()">Selecionar arquivo JSON</button>
+      <div id="import-progress-wrap" style="display:none;margin-top:1rem">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:0.4rem" id="import-progress-text">Processando...</div>
+        <div style="height:10px;background:var(--border-light);border-radius:5px;overflow:hidden"><div id="import-progress-bar" style="height:100%;background:var(--green);border-radius:5px;width:0%;transition:width 0.3s"></div></div>
+      </div>
+    </div>
+    <div class="card-plain" style="margin-bottom:1rem">
+      <div class="card-title">Exportar PDF por empresa</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:1rem">Relatorio completo com participantes, calendario e IASC.</div>
+      <button class="btn btn-green" onclick="exportarEmpresaPDF()">Gerar PDF de empresa</button>
+    </div>
+    <div class="card-plain" style="background:var(--border-light);border-style:dashed">
+      <div style="font-size:12px;color:var(--text-muted);line-height:1.7"><strong>Como funciona o armazenamento?</strong><br>Os dados ficam no navegador. Nao sao perdidos ao fechar a aba — mas sao perdidos se o cache for limpo ou o app atualizado para nova URL. Exporte regularmente.</div>
+    </div>
+  </div>`;
+}
+
+async function exportarDados(){
+  const [profs,eqs,emps,parts,psas,evts,posts,mats,iascs,hist]=await Promise.all([getPrfs(),getEqs(),getEmps(),getParts(),getPSAs(),getEvts(),getPosts(),getMats(),getIASCRespostas(),getHistorico()]);
+  const backup={versao:'PSA-Alavo-v4',exportadoEm:new Date().toISOString(),profissionais:profs,equipes:eqs,empresas:emps,participantes:parts,psas,eventos:evts,posts,materiais:mats,iasc_respostas:iascs,historico:hist};
+  const json=JSON.stringify(backup,null,2);
+  const utf8=new TextEncoder().encode(json);
+  const bin=Array.from(utf8).map(b=>String.fromCharCode(b)).join('');
+  const b64=btoa(bin);
+  const a=document.createElement('a');
+  a.href='data:application/json;base64,'+b64;
+  a.download='alavo-backup-'+new Date().toISOString().split('T')[0]+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+function setImportProgress(pct,label){const w=document.getElementById('import-progress-wrap'),b=document.getElementById('import-progress-bar'),t=document.getElementById('import-progress-text');if(w)w.style.display='block';if(b)b.style.width=Math.min(pct,100)+'%';if(t)t.textContent=label||'';}
+function hideImportProgress(){const w=document.getElementById('import-progress-wrap');if(w)w.style.display='none';}
+
+async function importarDados(input){
+  const file=input.files[0];if(!file)return;
+  if(!await dlgConfirm('Importar dados ira SUBSTITUIR todos os dados atuais.','Importar backup')){input.value='';return;}
+  setImportProgress(5,'Lendo arquivo...');
+  try{
+    const jsonStr=await new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onload=e=>{console.log('[Import] OK, length:',e.target.result.length);resolve(e.target.result);};
+      reader.onerror=()=>reject(new Error('Falha ao ler arquivo'));
+      reader.readAsText(file,'UTF-8');
+    });
+    setImportProgress(15,'Validando...');
+    await new Promise(r=>setTimeout(r,30));
+    let data;
+    try{data=JSON.parse(jsonStr.trim());}
+    catch(e){throw new Error('Arquivo JSON invalido. Exporte novamente.');}
+    if(data.versao&&!data.versao.startsWith('PSA-Alavo'))throw new Error('Arquivo invalido. Use um backup exportado pelo sistema Alavo.');
+    const steps=[
+      {key:'profissionais',fn:savePrfs},{key:'equipes',fn:saveEqs},{key:'empresas',fn:saveEmps},
+      {key:'participantes',fn:saveParts},{key:'psas',fn:savePSAs},{key:'eventos',fn:saveEvts},
+      {key:'posts',fn:savePosts},{key:'materiais',fn:saveMats},{key:'iasc_respostas',fn:saveIASCRespostas},
+      {key:'historico',fn:saveHistorico},
+    ];
+    for(let i=0;i<steps.length;i++){
+      const {key,fn}=steps[i];
+      setImportProgress(15+Math.round(((i+1)/steps.length)*75),'Salvando '+key+'...');
+      await new Promise(r=>setTimeout(r,20));
+      if(Array.isArray(data[key]))await fn(data[key]);
+    }
+    setImportProgress(100,'Concluido!');
+    await new Promise(r=>setTimeout(r,600));
+    hideImportProgress();
+    const summary=(data.profissionais?.length||0)+' profissionais, '+(data.empresas?.length||0)+' empresas, '+(data.participantes?.length||0)+' participantes';
+    await dlgAlert('Importacao concluida!\n\n'+summary,'success');
+    const prof=currentRole==='profissional'?(await getPrfs()).find(p=>p.id===currentProfId):undefined;
+    startApp(prof);
+  }catch(e){
+    hideImportProgress();
+    await dlgAlert('Erro ao importar:\n\n'+e.message,'error');
+    console.error('[Import]',e);
+  }
+  input.value='';
+}
+
+async function exportarEmpresaPDF(){
+  const emps=await getEmps();
+  if(!emps.length){await dlgAlert('Nenhuma empresa cadastrada.');return;}
+  openModal('Exportar PDF',`<div class="form-group"><label class="form-label">Selecione a empresa</label><select class="form-select" id="pdf-emp-sel">${emps.map(e=>`<option value="${e.id}">${e.nome}</option>`).join('')}</select></div>`,
+  [{label:'Cancelar',action:closeModal,secondary:true},{label:'Gerar PDF',action:async()=>{const id=document.getElementById('pdf-emp-sel').value;closeModal();await gerarEmpresaPDF(id);}}]);
+}
+
+async function gerarEmpresaPDF(empId){
+  const [emps,parts,psas,evts,iascs]=await Promise.all([getEmps(),getParts(),getPSAs(),getEvts(),getIASCRespostas()]);
+  const emp=emps.find(e=>e.id===empId);if(!emp)return;
+  const ep=parts.filter(p=>p.empresaId===empId);
+  const epsas=psas.filter(p=>p.empresaId===empId);
+  const eevts=evts.filter(e=>e.empresaId===empId).sort((a,b)=>parseLocalDate(a.data)-parseLocalDate(b.data));
+  const empIascs=iascs.filter(r=>r.empresaId===empId);const ultimo=empIascs[empIascs.length-1];
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:-apple-system,sans-serif;font-size:13px;color:#1a1a1a;margin:0}
+    .hdr{background:#0F6E56;color:#fff;padding:24px 40px}.hdr-logo{font-size:24px;font-weight:700}.page{padding:40px}
+    h2{font-size:15px;font-weight:600;color:#1D9E75;margin:20px 0 10px;padding-bottom:4px;border-bottom:2px solid #E1F5EE}
+    table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px}th{background:#E1F5EE;padding:8px;text-align:left;font-size:11px;font-weight:600;color:#0F6E56}td{padding:8px;border-bottom:1px solid #f3f4f6}
+    .score{font-size:40px;font-weight:700;color:#0F6E56;text-align:center;background:#E1F5EE;border-radius:8px;padding:16px;margin-bottom:16px}
+    .footer{text-align:center;font-size:10px;color:#9ca3af;padding:24px;border-top:1px solid #e5e7eb;margin-top:40px}
+    @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  </style></head><body>
+  <div class="hdr"><div class="hdr-logo">Alavo</div><div style="font-size:12px;opacity:0.8">Relatorio — ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}</div></div>
+  <div class="page">
+    <h1>${emp.nome}</h1>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+      <div><strong>CNPJ:</strong> ${emp.cnpj||'—'}</div><div><strong>Setor:</strong> ${emp.setor||'—'}</div>
+      <div><strong>Responsavel:</strong> ${emp.contato||'—'}</div><div><strong>Cidade:</strong> ${emp.cidade||'—'}</div>
+    </div>
+    <h2>Programas (${epsas.length})</h2>
+    ${epsas.length?`<table><thead><tr><th>Programa</th><th>Frequencia</th><th>Status</th></tr></thead><tbody>${epsas.map(p=>`<tr><td>${p.nome}</td><td>${p.frequencia||'—'}</td><td>${p.status}</td></tr>`).join('')}</tbody></table>`:'<p style="color:#6b7280">Nenhum.</p>'}
+    <h2>Participantes (${ep.length})</h2>
+    ${ep.length?`<table><thead><tr><th>Nome</th><th>E-mail</th><th>Cargo</th><th>Status</th></tr></thead><tbody>${ep.map(p=>`<tr><td>${p.nome}</td><td>${p.email}</td><td>${p.cargo||'—'}</td><td>${p.status}</td></tr>`).join('')}</tbody></table>`:'<p style="color:#6b7280">Nenhum.</p>'}
+    <h2>Calendario (${eevts.length})</h2>
+    ${eevts.length?`<table><thead><tr><th>Data</th><th>Titulo</th><th>Horario</th><th>Local</th></tr></thead><tbody>${eevts.map(e=>`<tr><td>${parseLocalDate(e.data).toLocaleDateString('pt-BR')}</td><td>${e.titulo}</td><td>${e.horario||'—'}</td><td>${e.local||'—'}</td></tr>`).join('')}</tbody></table>`:'<p style="color:#6b7280">Nenhum.</p>'}
+    <h2>IASC — Indice Alavo de Saude Corporativa</h2>
+    ${ultimo?`<div class="score">${ultimo.scores.geral} / 10</div><table><thead><tr><th>Pilar</th><th>Score</th></tr></thead><tbody>
+      <tr><td>Bem-estar Integrado</td><td>${ultimo.scores.bi||0}</td></tr>
+      <tr><td>Engajamento &amp; Participacao</td><td>${ultimo.scores.ep||0}</td></tr>
+      <tr><td>Energia e Produtividade</td><td>${ultimo.scores.epp||0}</td></tr>
+      <tr><td>Valor &amp; Conexao</td><td>${ultimo.scores.vp||0}</td></tr>
+    </tbody></table>`:'<p style="color:#6b7280">Nenhum dado IASC.</p>'}
+    <div class="footer">Alavo — Programa de Saude Corporativa · Este relatorio e confidencial</div>
+  </div></body></html>`;
+  const utf8=new TextEncoder().encode(html);
+  const bin=Array.from(utf8).map(b=>String.fromCharCode(b)).join('');
+  const a=document.createElement('a');
+  a.href='data:text/html;base64,'+btoa(bin);
+  a.download='relatorio-'+emp.nome.replace(/[^a-zA-Z0-9]/g,'-')+'.html';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  showToast('Relatorio baixado! Abra e use Ctrl+P para imprimir.','success',4000);
+}
+
+// ── HISTORICO PAGE ────────────────────────────────────────────
+async function pgHistorico(container){
+  const hist=await getHistorico();
+  const iconMap={'criou':'criar','editou':'editar','excluiu':'excluir','publicou':'postar','agendou':'agendar','ativou':'criar','adicionou a biblioteca':'criar','liberou IASC final':'editar','gerou codigo portal':'editar','limpou':'excluir'};
+  const emojiMap={'criar':'+','editar':'~','excluir':'x','postar':'*','agendar':'o'};
+  const entidades=[...new Set(hist.map(h=>h.entidade))].sort();
+  const actors=[...new Set(hist.map(h=>h.actor))].sort();
+  document.getElementById('topbar-actions').innerHTML=`<button class="btn btn-sm btn-danger" onclick="limparHistorico()">Limpar historico</button>`;
+  container.innerHTML=`<div class="page">
+    <div class="filter-bar" style="margin-bottom:1.25rem">
+      <label>Filtrar:</label>
+      <select class="filter-select" id="fh-tipo" onchange="filterHist()"><option value="">Todas as acoes</option><option>criou</option><option>editou</option><option>excluiu</option><option>publicou</option><option>agendou</option><option>ativou</option></select>
+      <select class="filter-select" id="fh-ent" onchange="filterHist()"><option value="">Todos os tipos</option>${entidades.map(e=>`<option>${e}</option>`).join('')}</select>
+      <select class="filter-select" id="fh-actor" onchange="filterHist()"><option value="">Todos os usuarios</option>${actors.map(a=>`<option>${a}</option>`).join('')}</select>
+      <input class="filter-input" id="fh-busca" placeholder="Buscar..." oninput="filterHist()">
+    </div>
+    ${hist.length===0?
+      '<div class="card"><div class="empty"><div class="empty-icon" style="font-size:2rem;opacity:0.4">&#x1F550;</div><div class="empty-title">Nenhuma acao registrada ainda</div><div class="empty-desc">As acoes aparecem conforme o sistema e utilizado.</div></div></div>':
+      `<div class="card-plain" id="hist-list">${hist.map(h=>{const tipo=iconMap[h.acao]||'editar';return`<div class="hist-item" data-acao="${h.acao||''}" data-ent="${h.entidade||''}" data-actor="${h.actor||''}" data-txt="${(h.detalhe||'').toLowerCase()}"><div class="hist-icon ${tipo}">${emojiMap[tipo]||'|'}</div><div style="flex:1;min-width:0"><div style="font-size:13px;line-height:1.5"><span class="hist-actor">${h.actor||'Sistema'}</span> <span style="color:var(--text-muted)">${h.acao||''}</span> <span style="font-weight:500">${h.entidade||''}</span>${h.detalhe?`<span style="color:var(--text-muted)">: ${h.detalhe}</span>`:''}</div><div style="font-size:11px;color:var(--text-light);margin-top:2px">${h.data||''}</div></div></div>`;}).join('')}</div>`}
+  </div>`;
+}
+function filterHist(){
+  const tipo=(document.getElementById('fh-tipo')?.value||'').toLowerCase();
+  const ent=(document.getElementById('fh-ent')?.value||'').toLowerCase();
+  const actor=(document.getElementById('fh-actor')?.value||'').toLowerCase();
+  const busca=(document.getElementById('fh-busca')?.value||'').toLowerCase();
+  document.querySelectorAll('#hist-list .hist-item').forEach(r=>{
+    r.style.display=((!tipo||r.dataset.acao.includes(tipo))&&(!ent||r.dataset.ent.includes(ent))&&(!actor||r.dataset.actor.includes(actor))&&(!busca||r.dataset.txt.includes(busca)||r.dataset.actor.includes(busca)))?'':'none';
+  });
+}
+async function limparHistorico(){
+  if(!await dlgConfirm('Limpar todo o historico?','Limpar historico'))return;
+  await saveHistorico([]);loadPage('historico');
+}
+
+// ── DATE FIX for all raw new Date(x.data) ────────────────────
+
+
+async function excluirEmpresa(id){
+  if(!await dlgConfirm('Excluir esta empresa permanentemente?','Excluir empresa'))return;
+  const emps=await getEmps();const emp=emps.find(e=>e.id===id);
+  await saveEmps(emps.filter(e=>e.id!==id));
+  await logAction('excluiu','Empresa',emp?.nome||id);
+  closeModal();loadPage('empresas');
+}
+</script>
+
+<div id="dlg-overlay"><div id="dlg-box"><div id="dlg-title"></div><div id="dlg-msg"></div><div id="dlg-btns"></div></div></div>
+<div id="toast-container"></div>
+<input type="file" id="import-file" accept=".json" style="display:none" onchange="importarDados(this)">
+</body>
+</html>
