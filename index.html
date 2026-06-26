@@ -356,7 +356,7 @@ tr:hover td{background:var(--green-light)}
   </div>
   <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
     <div class="modal" id="modal-box" onclick="event.stopPropagation()">
-      <div class="modal-header"><div class="modal-title" id="modal-title"></div><button class="modal-close" onclick="closeModal()">✕</button></div>
+      <div class="modal-header"><div class="modal-title" id="modal-title"></div><button class="modal-close" onclick="closeModalX()">✕</button></div>
       <div class="modal-body" id="modal-body"></div>
       <div class="modal-footer" id="modal-footer"></div>
     </div>
@@ -667,6 +667,16 @@ const navProf=[
 ];
 function mkIcon(d){return`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="${d}" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
 
+let _modalDirty=false;
+async function fileToBase64(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=e=>resolve(e.target.result);r.onerror=()=>reject(new Error('Erro ao ler arquivo'));r.readAsDataURL(file);});}
+async function compressImage(file){return new Promise(resolve=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{const c=document.createElement('canvas');let w=img.width,h=img.height,max=400;if(w>max||h>max){if(w>h){h=Math.round(h*max/w);w=max;}else{w=Math.round(w*max/h);h=max;}}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);URL.revokeObjectURL(url);resolve(c.toDataURL('image/jpeg',0.82));};img.src=url;});}
+async function handleProfFoto(input){const file=input.files[0];if(!file)return;try{const b64=await compressImage(file);document.getElementById('pf-foto').value=b64;prvFoto(b64);const n=document.getElementById('pf-foto-name');if(n)n.textContent=file.name;}catch(e){await dlgAlert('Erro ao processar foto: '+e.message,'error');}input.value='';}
+async function handleProfContrato(input){const file=input.files[0];if(!file)return;if(file.size>3145728){await dlgAlert('Arquivo muito grande. Máximo 3 MB.','error');input.value='';return;}try{const b64=await fileToBase64(file);document.getElementById('pf-contrato').value=b64;const n=document.getElementById('pf-contrato-name');if(n)n.textContent=file.name;const vb=document.getElementById('pf-contrato-ver');if(vb)vb.style.display='inline-flex';}catch(e){await dlgAlert('Erro ao processar contrato: '+e.message,'error');}input.value='';}
+function abrirContrato(){const v=document.getElementById('pf-contrato')?.value;if(!v)return;if(!v.startsWith('data:')){window.open(v,'_blank');return;}const a=document.createElement('a');a.href=v;a.download='contrato.pdf';document.body.appendChild(a);a.click();document.body.removeChild(a);}
+async function abrirContratoProf(profId){const profs=await getPrfs();const p=profs.find(x=>x.id===profId);if(!p||!p.contrato)return;if(p.contrato.startsWith('data:')){const a=document.createElement('a');a.href=p.contrato;a.download='contrato.pdf';document.body.appendChild(a);a.click();document.body.removeChild(a);}else{window.open(p.contrato,'_blank');}}
+async function handleEvtFoto(input){const file=input.files[0];if(!file)return;try{const b64=await compressImage(file);const evts=await getEvts();const e=evts.find(x=>x.id===window._evtFotoId);if(!e)return;e.foto=b64;await saveEvts(evts);renderCal(document.getElementById('pages-container'),await getEvts(),calendarDate);}catch(e){await dlgAlert('Erro: '+e.message,'error');}input.value='';}
+async function handlePostFoto(input){const file=input.files[0];if(!file)return;try{const b64=await compressImage(file);document.getElementById('post-img').value=b64;const n=document.getElementById('post-img-name');if(n)n.textContent=file.name;}catch(e){await dlgAlert('Erro ao processar imagem: '+e.message,'error');}input.value='';}
+
 function startApp(prof){
   document.getElementById('login-screen').style.display='none';
   const shell=document.getElementById('app-shell');shell.classList.add('visible');
@@ -709,8 +719,9 @@ async function pgProfissionais(container){
   container.innerHTML=`<div class="page">${profs.length===0?`<div class="card"><div class="empty"><div class="empty-icon">👤</div><div class="empty-title">Nenhum profissional</div></div></div>`:
   `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem">${profs.map(p=>`<div class="card-plain" style="display:flex;flex-direction:column;gap:0.75rem">
     <div style="display:flex;align-items:center;gap:0.75rem"><div class="avatar avatar-lg" style="cursor:pointer" onclick="openProfModal('${p.id}')">${p.foto?`<img src="${p.foto}">`:p.nome.charAt(0)}</div>
-    <div style="flex:1;min-width:0"><div style="font-weight:600">${p.nome}</div><div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:3px">${(p.especialidades||[p.especialidade]).filter(Boolean).map(s=>`<span class="badge badge-green" style="font-size:10px">${s}</span>`).join('')}</div></div></div>
+    <div style="flex:1;min-width:0"><div style="font-weight:600">${p.nome}</div>${p.cargo?`<div style="font-size:11px;color:var(--green);font-weight:500;margin-top:2px">${p.cargo}</div>`:''}<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:3px">${(p.especialidades||[p.especialidade]).filter(Boolean).map(s=>`<span class="badge badge-green" style="font-size:10px">${s}</span>`).join('')}</div></div></div>
     <div style="font-size:12px;color:var(--text-muted)">${p.email?`<div>${p.email}</div>`:''}${p.telefone?`<div>${p.telefone}</div>`:''}<div style="font-size:10px;margin-top:2px">Desde: ${p.dataCadastro||'—'}</div></div>
+    ${(p.instagram||p.linkedin)?`<div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.1rem">${p.instagram?`<a href="https://instagram.com/${p.instagram}" target="_blank" class="btn btn-sm" style="font-size:11px;padding:0.25rem 0.5rem">📸 @${p.instagram}</a>`:''}${p.linkedin?`<a href="${p.linkedin.startsWith('http')?p.linkedin:'https://'+p.linkedin}" target="_blank" class="btn btn-sm" style="font-size:11px;padding:0.25rem 0.5rem">in LinkedIn</a>`:''}</div>`:''}
     ${p.codigo?`<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap"><div class="code-box" style="font-size:0.9rem;padding:0.3rem 0.6rem">${p.codigo}</div><button class="btn btn-sm btn-wa" onclick="enviarWA('${p.id}')">WhatsApp</button></div>`:''}
     <div style="display:flex;gap:0.5rem;margin-top:auto"><button class="btn btn-sm" style="flex:1" onclick="openProfModal('${p.id}')">Editar</button><button class="btn btn-sm" onclick="reCodigo('${p.id}')" title="Novo código">🔑</button><button class="btn btn-sm btn-danger" onclick="delProf('${p.id}')">×</button></div>
   </div>`).join('')}</div>`}</div>`;
@@ -722,17 +733,44 @@ async function openProfModal(id){
   const renderChips=()=>{const el=document.getElementById('esp-chips');if(!el)return;el.innerHTML=especialidadesCustom.map(s=>`<div class="spec-chip ${selecionadas.includes(s)?'selected':''}" onclick="tglEsp(this,'${s}')">${s} <span onclick="rmEsp(event,'${s}')" style="margin-left:4px;opacity:0.5;cursor:pointer">×</span></div>`).join('')+`<div class="spec-chip" onclick="addEsp()" style="border-style:dashed">+ Nova</div>`;};
   openModal(id?'Editar profissional':'Novo profissional',`
     <div style="display:flex;gap:1rem;align-items:flex-start;margin-bottom:1rem">
-      <div><div class="avatar avatar-xl" style="cursor:pointer;border:2px dashed var(--border)" onclick="triggerFoto()" title="Clique para foto">${p?.foto?`<img src="${p.foto}" id="foto-prv">`:p?`<span id="foto-prv">${p.nome.charAt(0)}</span>`:`<span id="foto-prv">+</span>`}</div><div style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:4px">Clique na foto</div></div>
-      <div style="flex:1"><div class="form-group"><label class="form-label">URL da foto</label><input class="form-input" id="pf-foto" value="${p?.foto||''}" placeholder="https://..." oninput="prvFoto(this.value)"></div></div>
+      <div>
+        <div class="avatar avatar-xl" style="cursor:pointer;border:2px dashed var(--border)" onclick="document.getElementById('pf-foto-file').click()" title="Clique para enviar foto">
+          ${p?.foto?`<img src="${p.foto}" id="foto-prv" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:p?`<span id="foto-prv">${p.nome.charAt(0)}</span>`:`<span id="foto-prv">+</span>`}
+        </div>
+        <div style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:4px">Clique para foto</div>
+      </div>
+      <div style="flex:1">
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Foto do perfil</label>
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
+            <button type="button" class="btn btn-sm" onclick="document.getElementById('pf-foto-file').click()">📷 Enviar foto</button>
+            <span id="pf-foto-name" style="font-size:12px;color:var(--text-muted)">${p?.foto?'Foto cadastrada':'Nenhuma foto'}</span>
+          </div>
+          <input type="file" id="pf-foto-file" accept="image/*" style="display:none" onchange="handleProfFoto(this)">
+          <input type="hidden" id="pf-foto" value="${p?.foto||''}">
+        </div>
+      </div>
     </div>
     <div class="form-grid">
       <div class="form-group full"><label class="form-label">Nome *</label><input class="form-input" id="pf-nome" value="${p?.nome||''}" placeholder="Nome completo"></div>
+      <div class="form-group"><label class="form-label">Cargo</label><select class="form-select" id="pf-cargo"><option value="Profissional de Saúde" ${(!p?.cargo||p.cargo==='Profissional de Saúde')?'selected':''}>Profissional de Saúde</option><option value="Líder de Equipe" ${p?.cargo==='Líder de Equipe'?'selected':''}>Líder de Equipe</option><option value="Mentor Alavo" ${p?.cargo==='Mentor Alavo'?'selected':''}>Mentor Alavo</option></select></div>
       <div class="form-group"><label class="form-label">E-mail</label><input class="form-input" id="pf-email" type="email" value="${p?.email||''}"></div>
       <div class="form-group"><label class="form-label">Telefone (WhatsApp)</label><input class="form-input" id="pf-tel" value="${p?.telefone||''}"></div>
       <div class="form-group"><label class="form-label">CPF</label><input class="form-input" id="pf-cpf" value="${p?.cpf||''}"></div>
       <div class="form-group"><label class="form-label">Registro profissional</label><input class="form-input" id="pf-reg" value="${p?.registro||''}"></div>
+      <div class="form-group"><label class="form-label">Instagram</label><input class="form-input" id="pf-ig" value="${p?.instagram||''}" placeholder="@usuario"></div>
+      <div class="form-group"><label class="form-label">LinkedIn</label><input class="form-input" id="pf-li" value="${p?.linkedin||''}" placeholder="linkedin.com/in/..."></div>
       <div class="form-group full"><label class="form-label">Especialidades *</label><div class="spec-chips" id="esp-chips"></div></div>
-      <div class="form-group full"><label class="form-label">Link contrato / PDF</label><input class="form-input" id="pf-contrato" value="${p?.contrato||''}" placeholder="Link Google Drive..."></div>
+      <div class="form-group full">
+        <label class="form-label">Contrato</label>
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
+          <button type="button" class="btn btn-sm btn-green" onclick="document.getElementById('pf-contrato-file').click()">📎 Enviar contrato (PDF)</button>
+          <span id="pf-contrato-name" style="font-size:12px;color:var(--text-muted)">${p?.contrato?(p.contrato.startsWith('data:')?'Contrato enviado':'Link externo'):'Nenhum contrato'}</span>
+          <button type="button" id="pf-contrato-ver" class="btn btn-sm" onclick="abrirContrato()" style="display:${p?.contrato?'inline-flex':'none'}">👁 Ver</button>
+        </div>
+        <input type="file" id="pf-contrato-file" accept=".pdf,.doc,.docx,application/pdf" style="display:none" onchange="handleProfContrato(this)">
+        <input type="hidden" id="pf-contrato" value="${p?.contrato||''}">
+      </div>
       <div class="form-group full"><label class="form-label">Observações</label><textarea class="form-input" id="pf-obs">${p?.obs||''}</textarea></div>
       ${id&&p?.codigo?`<div class="form-group full"><label class="form-label">Código de acesso</label><div style="display:flex;gap:0.5rem;align-items:center"><div class="code-box">${p.codigo}</div><button class="btn btn-sm" onclick="reCodigo('${id}');closeModal()">Novo</button><button class="btn btn-sm btn-wa" onclick="enviarWA('${id}')">WhatsApp</button></div></div>`:''}
       ${p?.dataCadastro?`<div class="form-group full"><label class="form-label">Cadastrado em</label><div style="font-size:13px;color:var(--text-muted)">${p.dataCadastro}</div></div>`:''}
@@ -740,7 +778,7 @@ async function openProfModal(id){
   `,[{label:'Cancelar',action:closeModal,secondary:true},{label:id?'Salvar':'Cadastrar',action:async()=>{
     const nome=document.getElementById('pf-nome').value.trim();if(!nome||selecionadas.length===0){await dlgAlert('Nome e especialidade obrigatorios.');return;}
     const profs=await getPrfs();let codigo=p?.codigo;if(!codigo){do{codigo=gerarCodigo();}while(profs.some(x=>x.codigo===codigo));}
-    const pf={id:id||Date.now().toString(),nome,codigo,email:document.getElementById('pf-email').value.trim(),telefone:document.getElementById('pf-tel').value.trim(),cpf:document.getElementById('pf-cpf').value.trim(),registro:document.getElementById('pf-reg').value.trim(),especialidade:selecionadas[0],especialidades:selecionadas,contrato:document.getElementById('pf-contrato').value.trim(),foto:document.getElementById('pf-foto').value.trim(),obs:document.getElementById('pf-obs').value.trim(),dataCadastro:p?.dataCadastro||new Date().toLocaleDateString('pt-BR')};
+    const pf={id:id||Date.now().toString(),nome,codigo,cargo:document.getElementById('pf-cargo').value,email:document.getElementById('pf-email').value.trim(),telefone:document.getElementById('pf-tel').value.trim(),cpf:document.getElementById('pf-cpf').value.trim(),registro:document.getElementById('pf-reg').value.trim(),instagram:document.getElementById('pf-ig').value.trim().replace(/^@/,''),linkedin:document.getElementById('pf-li').value.trim(),especialidade:selecionadas[0],especialidades:selecionadas,contrato:document.getElementById('pf-contrato').value,foto:document.getElementById('pf-foto').value,obs:document.getElementById('pf-obs').value.trim(),dataCadastro:p?.dataCadastro||new Date().toLocaleDateString('pt-BR')};
     const isEdit=!!id;
     if(isEdit){const i=profs.findIndex(x=>x.id===id);if(i>-1)profs[i]=pf;}else profs.push(pf);
     await savePrfs(profs);
@@ -752,7 +790,6 @@ async function openProfModal(id){
 function tglEsp(el,v){const s=window._sel;if(s.includes(v))s.splice(s.indexOf(v),1);else s.push(v);window._chips();}
 async function rmEsp(e,v){e.stopPropagation();if(!await dlgConfirm(`Remover "${v}"?`,'Confirmar'))return;especialidadesCustom=especialidadesCustom.filter(x=>x!==v);if(window._sel)window._sel=window._sel.filter(x=>x!==v);window._chips();}
 function addEsp(){const n=prompt('Nova especialidade:');if(!n||!n.trim())return;if(!especialidadesCustom.includes(n.trim()))especialidadesCustom.push(n.trim());if(window._sel&&!window._sel.includes(n.trim()))window._sel.push(n.trim());window._chips();}
-function triggerFoto(){const u=prompt('URL da foto:');if(u!==null){document.getElementById('pf-foto').value=u;prvFoto(u);}}
 function prvFoto(url){const el=document.getElementById('foto-prv');if(!el)return;if(url)el.outerHTML=`<img src="${url}" id="foto-prv" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;else el.textContent='+';}
 async function reCodigo(id){const profs=await getPrfs();const p=profs.find(x=>x.id===id);if(!p)return;let c;do{c=gerarCodigo();}while(profs.some(x=>x.codigo===c&&x.id!==id));p.codigo=c;await savePrfs(profs);loadPage('profissionais');}
 async function enviarWA(id){const profs=await getPrfs();const p=profs.find(x=>x.id===id);if(!p||!p.telefone){await dlgAlert('Telefone nao cadastrado.');return;}const tel=p.telefone.replace(/\D/g,'');const msg=encodeURIComponent(`Olá ${p.nome.split(' ')[0]}! Seu código de acesso à plataforma Alavo é: *${p.codigo}*\n\nUse no login de Profissional.\n\nEquipe Alavo 🌿`);window.open(`https://wa.me/55${tel}?text=${msg}`,'_blank');}
@@ -993,7 +1030,7 @@ function renderCal(container,evts,date){
   </div>`;
 }
 async function chgMes(dir){calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+dir,1);const evts=await getEvts();renderCal(document.getElementById('pages-container'),evts,calendarDate);}
-async function addFotoEvt(id){const url=prompt('URL da foto do evento:');if(url===null)return;const evts=await getEvts();const e=evts.find(x=>x.id===id);if(!e)return;e.foto=url.trim();await saveEvts(evts);const evtsUp=await getEvts();renderCal(document.getElementById('pages-container'),evtsUp,calendarDate);}
+function addFotoEvt(id){window._evtFotoId=id;document.getElementById('evt-foto-file').click();}
 async function openEvtModal(){
   const [emps,eqs]=await Promise.all([getEmps(),getEqs()]);
   openModal('Novo encontro',`<div class="form-grid">
@@ -1083,8 +1120,11 @@ async function pgInicio(container){
           <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem"><div class="avatar">${prof?.foto?`<img src="${prof.foto}">`:prof?prof.nome.charAt(0):'P'}</div><div style="font-size:13px;font-weight:500">${prof?.nome||'Profissional'}</div></div>
           <textarea id="post-text" placeholder="Compartilhe algo com a equipe Alavo..." rows="3"></textarea>
           <div style="display:flex;gap:0.5rem;margin-top:0.75rem;align-items:center;flex-wrap:wrap">
-            <input type="text" id="post-img" class="form-input" style="flex:1;min-width:120px;font-size:12px" placeholder="URL de imagem (opcional)">
-            <input type="text" id="post-doc" class="form-input" style="flex:1;min-width:120px;font-size:12px" placeholder="URL de PDF/doc (opcional)">
+            <button type="button" class="btn btn-sm" onclick="document.getElementById('post-img-file').click()">🖼 Foto</button>
+            <span id="post-img-name" style="font-size:11px;color:var(--text-muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+            <input type="file" id="post-img-file" accept="image/*" style="display:none" onchange="handlePostFoto(this)">
+            <input type="hidden" id="post-img" value="">
+            <input type="text" id="post-doc" class="form-input" style="flex:1;min-width:120px;font-size:12px" placeholder="🎬 Link YouTube (opcional)">
             <button class="btn btn-green btn-sm" onclick="publicarPost()">Publicar</button>
           </div>
         </div>
@@ -1103,7 +1143,7 @@ async function publicarPost(){
   const profs=await getPrfs();const prof=currentProfId?profs.find(p=>p.id===currentProfId):null;
   const post={id:Date.now().toString(),tipo:'post',texto,imagem:document.getElementById('post-img').value.trim(),link:document.getElementById('post-doc').value.trim(),autor:prof?.nome||'Profissional',cargo:(prof?.especialidades||[prof?.especialidade]).filter(Boolean)[0]||'',profId:currentProfId,global:true,ts:Date.now()};
   const posts=await getPosts();posts.push(post);await savePosts(posts);await logAction('publicou','Post',texto.substring(0,60));
-  document.getElementById('post-text').value='';document.getElementById('post-img').value='';document.getElementById('post-doc').value='';
+  document.getElementById('post-text').value='';document.getElementById('post-img').value='';document.getElementById('post-doc').value='';const _pin=document.getElementById('post-img-name');if(_pin)_pin.textContent='';
   const all=[post,...posts.filter(p=>p.tipo!=='material').sort((a,b)=>b.ts-a.ts).slice(1)];
   document.getElementById('feed-container').innerHTML=all.map(p=>renderPostCard(p)).join('');
 }
@@ -1120,8 +1160,9 @@ async function pgEcossistema(container){
   </div>`;
 }
 async function verProfCom(id){const profs=await getPrfs();const p=profs.find(x=>x.id===id);if(!p)return;
-  openModal(p.nome,`<div style="text-align:center;padding:0.5rem 0 1rem"><div class="avatar avatar-xl" style="margin:0 auto 0.75rem">${p.foto?`<img src="${p.foto}">`:p.nome.charAt(0)}</div><div style="font-size:17px;font-weight:600">${p.nome}</div><div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:6px">${(p.especialidades||[p.especialidade]).filter(Boolean).map(s=>`<span class="badge badge-green">${s}</span>`).join('')}</div></div>
-    <div style="font-size:13px"><div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border-light)"><span style="color:var(--text-muted)">Na Alavo desde</span><span>${p.dataCadastro||'—'}</span></div>${p.registro?`<div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border-light)"><span style="color:var(--text-muted)">Registro</span><span>${p.registro}</span></div>`:''}</div>`,
+  openModal(p.nome,`<div style="text-align:center;padding:0.5rem 0 1rem"><div class="avatar avatar-xl" style="margin:0 auto 0.75rem">${p.foto?`<img src="${p.foto}">`:p.nome.charAt(0)}</div><div style="font-size:17px;font-weight:600">${p.nome}</div>${p.cargo?`<div style="font-size:12px;color:var(--green);font-weight:500;margin-top:4px">${p.cargo}</div>`:''}<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:6px">${(p.especialidades||[p.especialidade]).filter(Boolean).map(s=>`<span class="badge badge-green">${s}</span>`).join('')}</div></div>
+    <div style="font-size:13px"><div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border-light)"><span style="color:var(--text-muted)">Na Alavo desde</span><span>${p.dataCadastro||'—'}</span></div>${p.registro?`<div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border-light)"><span style="color:var(--text-muted)">Registro</span><span>${p.registro}</span></div>`:''}</div>
+    ${(p.instagram||p.linkedin)?`<div style="display:flex;gap:0.5rem;justify-content:center;margin-top:1rem;flex-wrap:wrap">${p.instagram?`<a href="https://instagram.com/${p.instagram}" target="_blank" class="btn btn-sm">📸 @${p.instagram}</a>`:''}${p.linkedin?`<a href="${p.linkedin.startsWith('http')?p.linkedin:'https://'+p.linkedin}" target="_blank" class="btn btn-sm">in LinkedIn</a>`:''}</div>`:''}`,
   [{label:'Fechar',action:closeModal,secondary:true}]);
 }
 
@@ -1132,11 +1173,13 @@ async function pgMeuPerfil(container){
   const myPSAs=psas.filter(p=>p.status==='ativo');
   container.innerHTML=`<div class="page"><div style="display:grid;grid-template-columns:240px 1fr;gap:1.5rem;align-items:start">
     <div class="card-plain" style="text-align:center"><div class="avatar avatar-xl" style="margin:0 auto 0.75rem">${prof.foto?`<img src="${prof.foto}">`:prof.nome.charAt(0)}</div>
-      <div style="font-size:16px;font-weight:600;margin-bottom:0.5rem">${prof.nome}</div>
+      <div style="font-size:16px;font-weight:600;margin-bottom:0.25rem">${prof.nome}</div>
+      ${prof.cargo?`<div style="font-size:12px;color:var(--green);font-weight:500;margin-bottom:0.5rem">${prof.cargo}</div>`:'<div style="margin-bottom:0.5rem"></div>'}
       <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-bottom:0.75rem">${(prof.especialidades||[prof.especialidade]).filter(Boolean).map(s=>`<span class="badge badge-green">${s}</span>`).join('')}</div>
       <div style="font-size:12px;color:var(--text-muted);line-height:1.8">${prof.email?`<div>${prof.email}</div>`:''}${prof.telefone?`<div>${prof.telefone}</div>`:''}${prof.registro?`<div>${prof.registro}</div>`:''}${prof.dataCadastro?`<div style="margin-top:0.5rem;font-size:10px">Na Alavo desde ${prof.dataCadastro}</div>`:''}</div>
+      ${(prof.instagram||prof.linkedin)?`<div style="display:flex;gap:0.4rem;justify-content:center;margin-top:0.75rem;flex-wrap:wrap">${prof.instagram?`<a href="https://instagram.com/${prof.instagram}" target="_blank" class="btn btn-sm" style="font-size:11px">📸 @${prof.instagram}</a>`:''}${prof.linkedin?`<a href="${prof.linkedin.startsWith('http')?prof.linkedin:'https://'+prof.linkedin}" target="_blank" class="btn btn-sm" style="font-size:11px">in LinkedIn</a>`:''}</div>`:''}
       ${prof.codigo?`<div style="margin-top:0.75rem"><div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Seu código</div><div class="code-box" style="font-size:0.85rem">${prof.codigo}</div></div>`:''}
-      ${prof.contrato?`<div style="margin-top:0.75rem"><a href="${prof.contrato}" target="_blank" class="btn btn-sm btn-green" style="width:100%;justify-content:center">📎 Meu contrato</a></div>`:''}
+      ${prof.contrato?`<div style="margin-top:0.75rem"><button class="btn btn-sm btn-green" style="width:100%;justify-content:center" onclick="abrirContratoProf('${prof.id}')">📎 Meu contrato</button></div>`:''}
     </div>
     <div>${myPSAs.map(psa=>{const emp=emps.find(e=>e.id===psa.empresaId);const empParts=parts.filter(p=>p.empresaId===psa.empresaId);return`<div class="card" style="margin-bottom:1rem"><div style="display:flex;justify-content:space-between;margin-bottom:0.75rem"><div><div style="font-size:15px;font-weight:600">${psa.nome}</div><div style="font-size:12px;color:var(--text-muted)">${psa.frequencia||''} ${psa.duracao?'· '+psa.duracao+'/encontro':''}</div></div><span class="badge badge-green">ativo</span></div>
       ${emp?`<div style="border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem;display:flex;align-items:center;gap:0.75rem"><div class="avatar avatar-lg" style="border-radius:var(--radius)">${emp.nome.charAt(0)}</div><div style="flex:1"><div style="font-weight:600">${emp.nome}</div><div style="font-size:12px;color:var(--text-muted)">${emp.setor||''} · ${emp.cidade||''}</div>${emp.instagram?`<div style="font-size:11px;color:var(--green)">@${emp.instagram}</div>`:''}</div><div style="text-align:center"><div style="font-size:22px;font-weight:700;color:var(--green)">${empParts.length}</div><div style="font-size:10px;color:var(--text-muted)">participantes</div></div></div>`:''}
@@ -1201,10 +1244,18 @@ function openModal(title,body,buttons){
   document.getElementById('modal-title').textContent=title;
   document.getElementById('modal-body').innerHTML=body;
   const f=document.getElementById('modal-footer');f.innerHTML='';
-  (buttons||[]).forEach(btn=>{const el=document.createElement('button');el.textContent=btn.label;el.className=btn.secondary?'btn':'btn btn-green';el.onclick=btn.action;f.appendChild(el);});
+  _modalDirty=false;
+  setTimeout(()=>{const mb=document.getElementById('modal-body');if(mb){mb.addEventListener('input',()=>{_modalDirty=true;},{capture:true});mb.addEventListener('change',()=>{_modalDirty=true;},{capture:true});}},60);
+  (buttons||[]).forEach(btn=>{const el=document.createElement('button');el.textContent=btn.label;el.className=btn.secondary?'btn':'btn btn-green';el.onclick=btn.secondary?()=>_doCloseModal():btn.action;f.appendChild(el);});
   document.getElementById('modal-overlay').classList.add('open');
 }
-function closeModal(e){if(e&&e.target!==document.getElementById('modal-overlay'))return;document.getElementById('modal-overlay').classList.remove('open');window._sel=null;window._chips=null;}
+async function closeModal(e){
+  if(e&&e.target!==document.getElementById('modal-overlay'))return;
+  if(e&&_modalDirty){const ok=await dlgConfirm('Deseja sair? As informações não salvas serão perdidas.','Sair do cadastro');if(!ok)return;}
+  _doCloseModal();
+}
+async function closeModalX(){if(_modalDirty){const ok=await dlgConfirm('Deseja sair? As informações não salvas serão perdidas.','Sair do cadastro');if(!ok)return;}_doCloseModal();}
+function _doCloseModal(){document.getElementById('modal-overlay').classList.remove('open');window._sel=null;window._chips=null;_modalDirty=false;}
 
 async function checkNotif(){const evts=await getEvts();const hoje=new Date();const em3=new Date(hoje);em3.setDate(hoje.getDate()+3);const prox=evts.filter(e=>{const d=parseLocalDate(e.data);return d>=hoje&&d<=em3;});const b=document.getElementById('notif-banner');if(prox.length>0){const p=prox[0];document.getElementById('notif-text').textContent=`Lembrete: "${p.titulo}" em ${parseLocalDate(p.data).toLocaleDateString('pt-BR')} ${p.horario?'às '+p.horario:''}`;b.classList.remove('hidden');}else b.classList.add('hidden');}
 
@@ -1408,5 +1459,6 @@ async function excluirEmpresa(id){
 <div id="dlg-overlay"><div id="dlg-box"><div id="dlg-title"></div><div id="dlg-msg"></div><div id="dlg-btns"></div></div></div>
 <div id="toast-container"></div>
 <input type="file" id="import-file" accept=".json" style="display:none" onchange="importarDados(this)">
+<input type="file" id="evt-foto-file" accept="image/*" style="display:none" onchange="handleEvtFoto(this)">
 </body>
 </html>
