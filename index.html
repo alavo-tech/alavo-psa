@@ -233,75 +233,75 @@ tr:hover td{background:var(--green-light)}
 .kanban-col{background:var(--border-light);border-radius:var(--radius-lg);padding:0.6rem;min-height:100px}
 .kanban-col-hdr{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:0.5rem;padding-bottom:0.35rem;border-bottom:2px solid var(--border);display:flex;justify-content:space-between;align-items:center}
 .kanban-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0.5rem 0.65rem;margin-bottom:0.4rem;font-size:12px;line-height:1.4}
-/* ═══ HUB ALAVO — DARK THEME ═══════════════════════════════ */
+/* ═══ HUB ALAVO — TEMA CLARO ════════════════════════════════ */
 :root{
-  --hub-bg:#080D12;--hub-surface:#151B24;--hub-border:#29313D;
-  --hub-text:#F1F5F9;--hub-muted:#94A3B8;--hub-subtle:#64748B;
-  --hub-training:#22C55E;--hub-training-bg:rgba(34,197,94,0.15);
-  --hub-nutrients:#F59E0B;--hub-nutrients-bg:rgba(245,158,11,0.15);
-  --hub-mind:#A855F7;--hub-mind-bg:rgba(168,85,247,0.15);
-  --hub-psa:#3B82F6;--hub-psa-bg:rgba(59,130,246,0.15);
+  --hub-bg:var(--bg);--hub-surface:var(--surface);--hub-border:var(--border);
+  --hub-text:var(--text);--hub-muted:var(--text-muted);--hub-subtle:var(--text-muted);
+  --hub-training:var(--green);--hub-training-bg:var(--green-light);
+  --hub-nutrients:#d97706;--hub-nutrients-bg:#fef3c7;
+  --hub-mind:#7c3aed;--hub-mind-bg:#ede9fe;
+  --hub-psa:var(--blue);--hub-psa-bg:var(--blue-bg);
 }
 #participant-portal.hub-mode{background:var(--hub-bg)!important;color:var(--hub-text)!important;display:flex!important;flex-direction:column!important;min-height:100vh!important}
-.hub-header{background:var(--hub-surface);border-bottom:1px solid var(--hub-border);padding:0.875rem 1.25rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.hub-logo{font-size:1.2rem;font-weight:700;color:var(--hub-training);display:flex;align-items:center;gap:0.35rem;letter-spacing:-0.5px}
+.hub-header{background:var(--green-dark);border-bottom:1px solid rgba(255,255,255,0.1);padding:0.875rem 1.25rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.hub-logo{font-size:1.2rem;font-weight:700;color:#fff;display:flex;align-items:center;gap:0.35rem;letter-spacing:-0.5px}
 .hub-content{flex:1;overflow-y:auto;padding:1.25rem;padding-bottom:84px;max-width:560px;width:100%;margin:0 auto;box-sizing:border-box}
-.hub-bottom-nav{background:var(--hub-surface);border-top:1px solid var(--hub-border);display:flex;align-items:center;justify-content:space-around;padding:0.4rem 0 max(0.4rem,env(safe-area-inset-bottom));flex-shrink:0;position:sticky;bottom:0;z-index:10}
-.hub-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:0.35rem 0.6rem;cursor:pointer;color:var(--hub-subtle);font-size:10px;font-weight:500;transition:color 0.15s;border-radius:8px;min-width:52px;user-select:none}
-.hub-nav-item.active{color:var(--hub-training)}
+.hub-bottom-nav{background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;padding:0.4rem 0 max(0.4rem,env(safe-area-inset-bottom));flex-shrink:0;position:sticky;bottom:0;z-index:10}
+.hub-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:0.35rem 0.6rem;cursor:pointer;color:var(--text-muted);font-size:10px;font-weight:500;transition:color 0.15s;border-radius:8px;min-width:52px;user-select:none}
+.hub-nav-item.active{color:var(--green)}
 .hub-nav-item svg{width:22px;height:22px}
-.hub-card{background:var(--hub-surface);border:1px solid var(--hub-border);border-radius:12px;padding:1rem}
-.hub-mod-card{background:var(--hub-surface);border:1px solid var(--hub-border);border-radius:14px;padding:1rem;cursor:pointer;transition:border-color 0.15s}
-.hub-section-hdr{font-size:13px;font-weight:600;color:var(--hub-text);margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between}
-.hub-section-link{font-size:12px;color:var(--hub-training);cursor:pointer;text-decoration:none}
-.hub-action-row{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;border-bottom:1px solid var(--hub-border)}
+.hub-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem}
+.hub-mod-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem;cursor:pointer;transition:border-color 0.15s}
+.hub-section-hdr{font-size:13px;font-weight:600;color:var(--text);margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between}
+.hub-section-link{font-size:12px;color:var(--green);cursor:pointer;text-decoration:none}
+.hub-action-row{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;border-bottom:1px solid var(--border-light)}
 .hub-action-row:last-child{border-bottom:none}
 .hub-mod-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .hub-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;flex-shrink:0}
-.hub-metric{background:var(--hub-surface);border:1px solid var(--hub-border);border-radius:12px;padding:0.75rem;text-align:center}
-.hub-metric-val{font-size:1.35rem;font-weight:700;color:var(--hub-text);line-height:1}
-.hub-metric-sub{font-size:9px;color:var(--hub-muted);margin-top:2px;text-transform:uppercase;letter-spacing:0.3px}
+.hub-metric{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:0.75rem;text-align:center}
+.hub-metric-val{font-size:1.35rem;font-weight:700;color:var(--text);line-height:1}
+.hub-metric-sub{font-size:9px;color:var(--text-muted);margin-top:2px;text-transform:uppercase;letter-spacing:0.3px}
 /* Login role cards */
-.login-role-card{background:#151B24;border:1px solid #29313D;border-radius:14px;padding:1.25rem;cursor:pointer;display:flex;align-items:center;gap:1rem;transition:border-color 0.2s;margin-bottom:0.75rem}
+.login-role-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;cursor:pointer;display:flex;align-items:center;gap:1rem;transition:border-color 0.2s;margin-bottom:0.75rem}
 .login-role-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
 </style>
 </head>
 <body>
 
 <!-- LOGIN -->
-<div id="login-screen" style="background:#080D12;flex-direction:column">
+<div id="login-screen" style="background:var(--green-dark);flex-direction:column">
   <!-- Passo 1: seleção de perfil -->
   <div id="login-step-1" style="width:100%;max-width:420px;padding:1.5rem">
     <div style="text-align:center;margin-bottom:2.25rem;padding-top:1rem">
-      <div style="font-size:2rem;font-weight:700;color:#22C55E;letter-spacing:-1px;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.25rem">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12L12 5L19 12"/></svg>Alavo</div>
-      <div style="font-size:11px;color:#64748B;text-transform:uppercase;letter-spacing:1px">Ecossistema de Saúde Integrada</div>
+      <div style="font-size:2rem;font-weight:700;color:#fff;letter-spacing:-1px;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.25rem">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12L12 5L19 12"/></svg>Alavo</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px">Ecossistema de Saúde Integrada</div>
     </div>
-    <div style="font-size:13px;font-weight:500;color:#94A3B8;text-align:center;margin-bottom:1.25rem">Quem é você?</div>
-    <div class="login-role-card" onclick="selecionarPerfil('empresa')" onmouseover="this.style.borderColor='#3B82F6'" onmouseout="this.style.borderColor='#29313D'">
-      <div class="login-role-icon" style="background:rgba(59,130,246,0.15)">🏢</div>
-      <div><div style="font-size:15px;font-weight:600;color:#F1F5F9">Colaborador</div><div style="font-size:12px;color:#94A3B8;margin-top:2px">Acompanhe sua rotina e bem-estar</div></div>
+    <div style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.8);text-align:center;margin-bottom:1.25rem">Quem é você?</div>
+    <div class="login-role-card" onclick="selecionarPerfil('empresa')" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div class="login-role-icon" style="background:var(--green-light)">🏢</div>
+      <div><div style="font-size:15px;font-weight:600;color:var(--text)">Colaborador</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px">Acompanhe sua rotina e bem-estar</div></div>
     </div>
-    <div class="login-role-card" onclick="selecionarPerfil('profissional')" onmouseover="this.style.borderColor='#A855F7'" onmouseout="this.style.borderColor='#29313D'">
-      <div class="login-role-icon" style="background:rgba(168,85,247,0.15)">👨‍⚕️</div>
-      <div><div style="font-size:15px;font-weight:600;color:#F1F5F9">Profissional</div><div style="font-size:12px;color:#94A3B8;margin-top:2px">Prescreva, acompanhe e oriente</div></div>
+    <div class="login-role-card" onclick="selecionarPerfil('profissional')" onmouseover="this.style.borderColor='var(--purple)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div class="login-role-icon" style="background:var(--purple-bg)">👨‍⚕️</div>
+      <div><div style="font-size:15px;font-weight:600;color:var(--text)">Profissional</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px">Prescreva, acompanhe e oriente</div></div>
     </div>
-    <div class="login-role-card" onclick="selecionarPerfil('adm')" onmouseover="this.style.borderColor='#F59E0B'" onmouseout="this.style.borderColor='#29313D'">
-      <div class="login-role-icon" style="background:rgba(245,158,11,0.15)">⚙️</div>
-      <div><div style="font-size:15px;font-weight:600;color:#F1F5F9">ADM</div><div style="font-size:12px;color:#94A3B8;margin-top:2px">Gerencie programas, participação e impacto</div></div>
+    <div class="login-role-card" onclick="selecionarPerfil('adm')" onmouseover="this.style.borderColor='var(--amber)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div class="login-role-icon" style="background:var(--amber-bg)">⚙️</div>
+      <div><div style="font-size:15px;font-weight:600;color:var(--text)">ADM</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px">Gerencie programas, participação e impacto</div></div>
     </div>
-    <div style="text-align:center;margin-top:1.5rem"><a onclick="showPart()" style="color:#22C55E;font-size:13px;cursor:pointer">Participante? Inscreva-se aqui</a></div>
+    <div style="text-align:center;margin-top:1.5rem"><a onclick="showPart()" style="color:rgba(255,255,255,0.8);font-size:13px;cursor:pointer">Participante? Inscreva-se aqui</a></div>
   </div>
   <!-- Passo 2: formulário de acesso -->
   <div id="login-step-2" style="display:none;width:100%;max-width:380px;padding:1.5rem">
-    <button onclick="voltarLoginStep1()" style="background:none;border:none;cursor:pointer;color:#94A3B8;font-size:13px;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.4rem">← Voltar</button>
-    <div class="login-box" style="background:#151B24;border:1px solid #29313D">
-      <div class="login-logo" style="color:#22C55E">Alavo</div>
-      <div class="login-sub" id="login-step2-sub" style="color:#94A3B8">Acesso</div>
-      <div id="f-adm" style="display:none"><div class="field"><label style="color:#94A3B8">Código ADM</label><input type="password" id="lc-adm" placeholder="Código de acesso" style="background:#0D1219;border-color:#29313D;color:#F1F5F9" onkeydown="if(event.key==='Enter')doLogin()"></div></div>
-      <div id="f-prof" style="display:none"><div class="field"><label style="color:#94A3B8">Seu código pessoal</label><input type="text" id="lc-prof" placeholder="Ex: ALV-8X3K" style="text-transform:uppercase;letter-spacing:2px;background:#0D1219;border-color:#29313D;color:#F1F5F9" onkeydown="if(event.key==='Enter')doLoginProf()"></div></div>
-      <div id="f-emp" style="display:none"><div class="field"><label style="color:#94A3B8">Código da empresa</label><input type="text" id="lc-emp" placeholder="Ex: ATESEG-2026" style="text-transform:uppercase;letter-spacing:1px;background:#0D1219;border-color:#29313D;color:#F1F5F9" onkeydown="if(event.key==='Enter')doLoginEmpresa()"></div></div>
-      <button class="btn-primary" id="btn-login" onclick="doLogin()" style="background:#22C55E;border-color:#22C55E">Entrar</button>
+    <button onclick="voltarLoginStep1()" style="background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.8);font-size:13px;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.4rem">← Voltar</button>
+    <div class="login-box">
+      <div class="login-logo">Alavo</div>
+      <div class="login-sub" id="login-step2-sub">Acesso</div>
+      <div id="f-adm" style="display:none"><div class="field"><label>Código ADM</label><input type="password" id="lc-adm" placeholder="Código de acesso" onkeydown="if(event.key==='Enter')doLogin()"></div></div>
+      <div id="f-prof" style="display:none"><div class="field"><label>Seu código pessoal</label><input type="text" id="lc-prof" placeholder="Ex: ALV-8X3K" style="text-transform:uppercase;letter-spacing:2px" onkeydown="if(event.key==='Enter')doLoginProf()"></div></div>
+      <div id="f-emp" style="display:none"><div class="field"><label>Código da empresa</label><input type="text" id="lc-emp" placeholder="Ex: ATESEG-2026" style="text-transform:uppercase;letter-spacing:1px" onkeydown="if(event.key==='Enter')doLoginEmpresa()"></div></div>
+      <button class="btn-primary" id="btn-login" onclick="doLogin()">Entrar</button>
       <div class="login-err" id="login-err"></div>
     </div>
   </div>
@@ -658,7 +658,7 @@ async function showPortal(emp){
     <div class="hub-header">
       <div class="hub-logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12L12 5L19 12"/></svg>Alavo</div>
       <div style="display:flex;align-items:center;gap:0.75rem">
-        <button onclick="doLogout()" style="color:#94A3B8;background:rgba(255,255,255,0.06);border:1px solid #29313D;padding:0.3rem 0.7rem;border-radius:8px;cursor:pointer;font-size:12px">Sair</button>
+        <button onclick="doLogout()" style="color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:0.3rem 0.7rem;border-radius:8px;cursor:pointer;font-size:12px">Sair</button>
       </div>
     </div>
     <div id="hub-content" class="hub-content"></div>
@@ -761,7 +761,7 @@ async function renderHubBiblioteca(c){
   const tipos=[{k:'exercicio',label:'Fichas de exercício',icon:'⚡',cor:'var(--hub-training)'},{k:'nutricao',label:'Nutrição',icon:'🍎',cor:'var(--hub-nutrients)'},{k:'psicologia',label:'Psicologia',icon:'🧠',cor:'var(--hub-mind)'},{k:'geral',label:'Materiais gerais',icon:'📄',cor:'var(--hub-psa)'}];
   c.innerHTML=`<div style="font-size:16px;font-weight:700;color:var(--hub-text);margin-bottom:1.25rem">Biblioteca</div>
     ${empMats.length===0?`<div style="text-align:center;padding:3rem;color:var(--hub-muted)">Nenhum material disponível.</div>`:''}
-    ${tipos.map(t=>{const items=empMats.filter(m=>m.tipo===t.k);if(!items.length)return'';return`<div style="margin-bottom:1.25rem"><div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem"><span>${t.icon}</span><div style="font-size:13px;font-weight:600;color:var(--hub-text)">${t.label}</div><span style="font-size:10px;padding:1px 6px;border-radius:20px;background:rgba(255,255,255,0.08);color:var(--hub-muted)">${items.length}</span></div>${items.map(m=>`<div class="hub-card" style="margin-bottom:0.5rem;display:flex;align-items:center;gap:0.75rem;padding:0.75rem"><div style="font-size:20px">${t.icon}</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:var(--hub-text)">${m.titulo}</div>${m.descricao?`<div style="font-size:11px;color:var(--hub-muted)">${m.descricao}</div>`:''}</div>${m.link?`<a href="${m.link}" target="_blank" style="font-size:12px;color:${t.cor};padding:0.3rem 0.7rem;border:1px solid ${t.cor}55;border-radius:8px;text-decoration:none;flex-shrink:0">Abrir</a>`:''}</div>`).join('')}</div>`;}).join('')}`;
+    ${tipos.map(t=>{const items=empMats.filter(m=>m.tipo===t.k);if(!items.length)return'';return`<div style="margin-bottom:1.25rem"><div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem"><span>${t.icon}</span><div style="font-size:13px;font-weight:600;color:var(--hub-text)">${t.label}</div><span style="font-size:10px;padding:1px 6px;border-radius:20px;background:var(--border-light);color:var(--text-muted)">${items.length}</span></div>${items.map(m=>`<div class="hub-card" style="margin-bottom:0.5rem;display:flex;align-items:center;gap:0.75rem;padding:0.75rem"><div style="font-size:20px">${t.icon}</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:var(--hub-text)">${m.titulo}</div>${m.descricao?`<div style="font-size:11px;color:var(--hub-muted)">${m.descricao}</div>`:''}</div>${m.link?`<a href="${m.link}" target="_blank" style="font-size:12px;color:${t.cor};padding:0.3rem 0.7rem;border:1px solid ${t.cor}55;border-radius:8px;text-decoration:none;flex-shrink:0">Abrir</a>`:''}</div>`).join('')}</div>`;}).join('')}`;
 }
 
 async function renderHubIASC(c){
