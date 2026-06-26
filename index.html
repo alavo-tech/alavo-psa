@@ -233,26 +233,77 @@ tr:hover td{background:var(--green-light)}
 .kanban-col{background:var(--border-light);border-radius:var(--radius-lg);padding:0.6rem;min-height:100px}
 .kanban-col-hdr{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:0.5rem;padding-bottom:0.35rem;border-bottom:2px solid var(--border);display:flex;justify-content:space-between;align-items:center}
 .kanban-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0.5rem 0.65rem;margin-bottom:0.4rem;font-size:12px;line-height:1.4}
+/* ═══ HUB ALAVO — DARK THEME ═══════════════════════════════ */
+:root{
+  --hub-bg:#080D12;--hub-surface:#151B24;--hub-border:#29313D;
+  --hub-text:#F1F5F9;--hub-muted:#94A3B8;--hub-subtle:#64748B;
+  --hub-training:#22C55E;--hub-training-bg:rgba(34,197,94,0.15);
+  --hub-nutrients:#F59E0B;--hub-nutrients-bg:rgba(245,158,11,0.15);
+  --hub-mind:#A855F7;--hub-mind-bg:rgba(168,85,247,0.15);
+  --hub-psa:#3B82F6;--hub-psa-bg:rgba(59,130,246,0.15);
+}
+#participant-portal.hub-mode{background:var(--hub-bg)!important;color:var(--hub-text)!important;display:flex!important;flex-direction:column!important;min-height:100vh!important}
+.hub-header{background:var(--hub-surface);border-bottom:1px solid var(--hub-border);padding:0.875rem 1.25rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.hub-logo{font-size:1.2rem;font-weight:700;color:var(--hub-training);display:flex;align-items:center;gap:0.35rem;letter-spacing:-0.5px}
+.hub-content{flex:1;overflow-y:auto;padding:1.25rem;padding-bottom:84px;max-width:560px;width:100%;margin:0 auto;box-sizing:border-box}
+.hub-bottom-nav{background:var(--hub-surface);border-top:1px solid var(--hub-border);display:flex;align-items:center;justify-content:space-around;padding:0.4rem 0 max(0.4rem,env(safe-area-inset-bottom));flex-shrink:0;position:sticky;bottom:0;z-index:10}
+.hub-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:0.35rem 0.6rem;cursor:pointer;color:var(--hub-subtle);font-size:10px;font-weight:500;transition:color 0.15s;border-radius:8px;min-width:52px;user-select:none}
+.hub-nav-item.active{color:var(--hub-training)}
+.hub-nav-item svg{width:22px;height:22px}
+.hub-card{background:var(--hub-surface);border:1px solid var(--hub-border);border-radius:12px;padding:1rem}
+.hub-mod-card{background:var(--hub-surface);border:1px solid var(--hub-border);border-radius:14px;padding:1rem;cursor:pointer;transition:border-color 0.15s}
+.hub-section-hdr{font-size:13px;font-weight:600;color:var(--hub-text);margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between}
+.hub-section-link{font-size:12px;color:var(--hub-training);cursor:pointer;text-decoration:none}
+.hub-action-row{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;border-bottom:1px solid var(--hub-border)}
+.hub-action-row:last-child{border-bottom:none}
+.hub-mod-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.hub-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;flex-shrink:0}
+.hub-metric{background:var(--hub-surface);border:1px solid var(--hub-border);border-radius:12px;padding:0.75rem;text-align:center}
+.hub-metric-val{font-size:1.35rem;font-weight:700;color:var(--hub-text);line-height:1}
+.hub-metric-sub{font-size:9px;color:var(--hub-muted);margin-top:2px;text-transform:uppercase;letter-spacing:0.3px}
+/* Login role cards */
+.login-role-card{background:#151B24;border:1px solid #29313D;border-radius:14px;padding:1.25rem;cursor:pointer;display:flex;align-items:center;gap:1rem;transition:border-color 0.2s;margin-bottom:0.75rem}
+.login-role-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
 </style>
 </head>
 <body>
 
 <!-- LOGIN -->
-<div id="login-screen">
-  <div class="login-box">
-    <div class="login-logo">Alavo</div>
-    <div class="login-sub">Programas de Saúde Integrada</div>
-    <div class="login-tabs">
-      <button class="login-tab active" onclick="switchTab('adm')">ADM</button>
-      <button class="login-tab" onclick="switchTab('profissional')">Profissional</button>
-      <button class="login-tab" onclick="switchTab('empresa')">Empresa</button>
+<div id="login-screen" style="background:#080D12;flex-direction:column">
+  <!-- Passo 1: seleção de perfil -->
+  <div id="login-step-1" style="width:100%;max-width:420px;padding:1.5rem">
+    <div style="text-align:center;margin-bottom:2.25rem;padding-top:1rem">
+      <div style="font-size:2rem;font-weight:700;color:#22C55E;letter-spacing:-1px;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.25rem">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12L12 5L19 12"/></svg>Alavo</div>
+      <div style="font-size:11px;color:#64748B;text-transform:uppercase;letter-spacing:1px">Ecossistema de Saúde Integrada</div>
     </div>
-    <div id="f-adm"><div class="field"><label>Código ADM</label><input type="password" id="lc-adm" placeholder="Código de acesso" onkeydown="if(event.key==='Enter')doLogin()"></div></div>
-    <div id="f-prof" style="display:none"><div class="field"><label>Seu código pessoal</label><input type="text" id="lc-prof" placeholder="Ex: ALV-8X3K" style="text-transform:uppercase;letter-spacing:2px" onkeydown="if(event.key==='Enter')doLoginProf()"></div></div>
-    <div id="f-emp" style="display:none"><div class="field"><label>Código da empresa</label><input type="text" id="lc-emp" placeholder="Ex: ATESEG-2026" style="text-transform:uppercase;letter-spacing:1px" onkeydown="if(event.key==='Enter')doLoginEmpresa()"></div></div>
-    <button class="btn-primary" id="btn-login" onclick="doLogin()">Entrar</button>
-    <div class="login-err" id="login-err"></div>
-    <div class="login-links"><a onclick="showPart()">Participante? Inscreva-se aqui</a></div>
+    <div style="font-size:13px;font-weight:500;color:#94A3B8;text-align:center;margin-bottom:1.25rem">Quem é você?</div>
+    <div class="login-role-card" onclick="selecionarPerfil('empresa')" onmouseover="this.style.borderColor='#3B82F6'" onmouseout="this.style.borderColor='#29313D'">
+      <div class="login-role-icon" style="background:rgba(59,130,246,0.15)">🏢</div>
+      <div><div style="font-size:15px;font-weight:600;color:#F1F5F9">Colaborador</div><div style="font-size:12px;color:#94A3B8;margin-top:2px">Acompanhe sua rotina e bem-estar</div></div>
+    </div>
+    <div class="login-role-card" onclick="selecionarPerfil('profissional')" onmouseover="this.style.borderColor='#A855F7'" onmouseout="this.style.borderColor='#29313D'">
+      <div class="login-role-icon" style="background:rgba(168,85,247,0.15)">👨‍⚕️</div>
+      <div><div style="font-size:15px;font-weight:600;color:#F1F5F9">Profissional</div><div style="font-size:12px;color:#94A3B8;margin-top:2px">Prescreva, acompanhe e oriente</div></div>
+    </div>
+    <div class="login-role-card" onclick="selecionarPerfil('adm')" onmouseover="this.style.borderColor='#F59E0B'" onmouseout="this.style.borderColor='#29313D'">
+      <div class="login-role-icon" style="background:rgba(245,158,11,0.15)">⚙️</div>
+      <div><div style="font-size:15px;font-weight:600;color:#F1F5F9">ADM</div><div style="font-size:12px;color:#94A3B8;margin-top:2px">Gerencie programas, participação e impacto</div></div>
+    </div>
+    <div style="text-align:center;margin-top:1.5rem"><a onclick="showPart()" style="color:#22C55E;font-size:13px;cursor:pointer">Participante? Inscreva-se aqui</a></div>
+  </div>
+  <!-- Passo 2: formulário de acesso -->
+  <div id="login-step-2" style="display:none;width:100%;max-width:380px;padding:1.5rem">
+    <button onclick="voltarLoginStep1()" style="background:none;border:none;cursor:pointer;color:#94A3B8;font-size:13px;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.4rem">← Voltar</button>
+    <div class="login-box" style="background:#151B24;border:1px solid #29313D">
+      <div class="login-logo" style="color:#22C55E">Alavo</div>
+      <div class="login-sub" id="login-step2-sub" style="color:#94A3B8">Acesso</div>
+      <div id="f-adm" style="display:none"><div class="field"><label style="color:#94A3B8">Código ADM</label><input type="password" id="lc-adm" placeholder="Código de acesso" style="background:#0D1219;border-color:#29313D;color:#F1F5F9" onkeydown="if(event.key==='Enter')doLogin()"></div></div>
+      <div id="f-prof" style="display:none"><div class="field"><label style="color:#94A3B8">Seu código pessoal</label><input type="text" id="lc-prof" placeholder="Ex: ALV-8X3K" style="text-transform:uppercase;letter-spacing:2px;background:#0D1219;border-color:#29313D;color:#F1F5F9" onkeydown="if(event.key==='Enter')doLoginProf()"></div></div>
+      <div id="f-emp" style="display:none"><div class="field"><label style="color:#94A3B8">Código da empresa</label><input type="text" id="lc-emp" placeholder="Ex: ATESEG-2026" style="text-transform:uppercase;letter-spacing:1px;background:#0D1219;border-color:#29313D;color:#F1F5F9" onkeydown="if(event.key==='Enter')doLoginEmpresa()"></div></div>
+      <button class="btn-primary" id="btn-login" onclick="doLogin()" style="background:#22C55E;border-color:#22C55E">Entrar</button>
+      <div class="login-err" id="login-err"></div>
+    </div>
   </div>
 </div>
 
@@ -373,6 +424,12 @@ tr:hover td{background:var(--green-light)}
 </div>
 <script>
 const ADM_CODE='ALAVO2024';
+const ALAVO_MODULES={
+  training:{id:'training',label:'Alavo Training',cor:'#22C55E',bg:'rgba(34,197,94,0.15)',icon:'⚡',desc:'Movimento e prescrição de treinos',comingSoon:'Integração em breve'},
+  nutrients:{id:'nutrients',label:'Alavo Nutrients',cor:'#F59E0B',bg:'rgba(245,158,11,0.15)',icon:'🍎',desc:'Alimentação consciente e personalizada',comingSoon:'Em construção'},
+  mind:{id:'mind',label:'Alavo Mind',cor:'#A855F7',bg:'rgba(168,85,247,0.15)',icon:'🧠',desc:'Saúde mental e apoio emocional',comingSoon:'Em construção'},
+  psa:{id:'psa',label:'Programa da Empresa',cor:'#3B82F6',bg:'rgba(59,130,246,0.15)',icon:'🏢',desc:'Calendário, materiais e IASC'},
+};
 function dlgConfirm(msg,title){return new Promise(r=>{const o=document.getElementById('dlg-overlay'),tl=document.getElementById('dlg-title'),ml=document.getElementById('dlg-msg'),bt=document.getElementById('dlg-btns');tl.textContent=title||'Confirmar';ml.textContent=msg;bt.innerHTML='';const no=document.createElement('button');no.className='btn';no.textContent='Cancelar';no.onclick=()=>{o.classList.remove('open');r(false);};const yes=document.createElement('button');yes.className='btn btn-danger';yes.textContent='Confirmar';yes.onclick=()=>{o.classList.remove('open');r(true);};bt.appendChild(no);bt.appendChild(yes);o.classList.add('open');});}
 function dlgAlert(msg,type){return new Promise(r=>{const o=document.getElementById('dlg-overlay'),tl=document.getElementById('dlg-title'),ml=document.getElementById('dlg-msg'),bt=document.getElementById('dlg-btns');tl.textContent=type==='success'?'Concluido':type==='error'?'Erro':'Aviso';ml.textContent=msg;bt.innerHTML='';const ok=document.createElement('button');ok.className='btn btn-green';ok.textContent='OK';ok.onclick=()=>{o.classList.remove('open');r();};bt.appendChild(ok);o.classList.add('open');});}
 function showToast(msg,type,dur){const c=document.getElementById('toast-container');if(!c)return;const t=document.createElement('div');t.className='toast'+(type==='success'?' toast-green':type==='error'?' toast-red':'');t.textContent=msg;c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity 0.3s';setTimeout(()=>t.remove(),300);},(dur||2500));}
@@ -488,7 +545,6 @@ var var_amber='#d97706';
 
 function switchTab(tab){
   loginTab=tab;
-  document.querySelectorAll('.login-tab').forEach((t,i)=>t.classList.toggle('active',['adm','profissional','empresa'][i]===tab));
   document.getElementById('f-adm').style.display=tab==='adm'?'block':'none';
   document.getElementById('f-prof').style.display=tab==='profissional'?'block':'none';
   document.getElementById('f-emp').style.display=tab==='empresa'?'block':'none';
@@ -496,10 +552,29 @@ function switchTab(tab){
   document.getElementById('btn-login').onclick=acts[tab];
   document.getElementById('login-err').textContent='';
 }
+function selecionarPerfil(role){
+  loginTab=role;
+  document.getElementById('login-step-1').style.display='none';
+  document.getElementById('login-step-2').style.display='block';
+  document.getElementById('f-adm').style.display=role==='adm'?'block':'none';
+  document.getElementById('f-prof').style.display=role==='profissional'?'block':'none';
+  document.getElementById('f-emp').style.display=role==='empresa'?'block':'none';
+  const labels={adm:'Acesso ADM',profissional:'Acesso Profissional',empresa:'Hub Alavo — Colaborador'};
+  document.getElementById('login-step2-sub').textContent=labels[role]||'Acesso';
+  const acts={adm:doLogin,profissional:doLoginProf,empresa:doLoginEmpresa};
+  document.getElementById('btn-login').onclick=acts[role];
+  document.getElementById('login-err').textContent='';
+  setTimeout(()=>{const ids={adm:'lc-adm',profissional:'lc-prof',empresa:'lc-emp'};const el=document.getElementById(ids[role]);if(el)el.focus();},100);
+}
+function voltarLoginStep1(){
+  document.getElementById('login-step-1').style.display='block';
+  document.getElementById('login-step-2').style.display='none';
+  document.getElementById('login-err').textContent='';
+}
 function doLogin(){if(document.getElementById('lc-adm').value.trim()===ADM_CODE){currentRole='adm';startApp();}else document.getElementById('login-err').textContent='Código inválido.';}
 async function doLoginProf(){const code=document.getElementById('lc-prof').value.trim().toUpperCase();const profs=await getPrfs();const prof=profs.find(p=>p.codigo===code);if(prof){currentRole='profissional';currentProfId=prof.id;startApp(prof);}else document.getElementById('login-err').textContent='Código não encontrado.';}
 async function doLoginEmpresa(){const code=document.getElementById('lc-emp').value.trim().toUpperCase();const emps=await getEmps();const emp=emps.find(e=>e.codigoPortal===code);if(emp){currentRole='empresa';currentEmpresaPortalId=emp.id;showPortal(emp);}else document.getElementById('login-err').textContent='Código não encontrado.';}
-function doLogout(){currentRole=null;currentProfId=null;currentEmpresaPortalId=null;document.getElementById('app-shell').classList.remove('visible');document.getElementById('participant-portal').style.display='none';document.getElementById('login-screen').style.display='flex';['lc-adm','lc-prof','lc-emp'].forEach(id=>document.getElementById(id).value='');document.getElementById('login-err').textContent='';}
+function doLogout(){currentRole=null;currentProfId=null;currentEmpresaPortalId=null;delete window._hubEmp;document.getElementById('app-shell').classList.remove('visible');const pp=document.getElementById('participant-portal');pp.style.display='none';pp.classList.remove('hub-mode');document.getElementById('login-screen').style.display='flex';document.getElementById('login-step-1').style.display='block';document.getElementById('login-step-2').style.display='none';['lc-adm','lc-prof','lc-emp'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('login-err').textContent='';}
 
 function showPart(){
   document.getElementById('login-screen').style.display='none';
@@ -507,7 +582,7 @@ function showPart(){
   getEmps().then(emps=>{const s=document.getElementById('p-empresa');s.innerHTML='<option value="">Selecione sua empresa</option>';emps.forEach(e=>s.innerHTML+=`<option value="${e.id}">${e.nome}</option>`);});
   renderIASCForm();
 }
-function backLogin(){document.getElementById('part-screen').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('part-form-wrap').style.display='block';document.getElementById('part-ok').style.display='none';}
+function backLogin(){document.getElementById('part-screen').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('part-form-wrap').style.display='block';document.getElementById('part-ok').style.display='none';document.getElementById('login-step-1').style.display='block';document.getElementById('login-step-2').style.display='none';}
 function goStep1(){document.getElementById('step-1').style.display='block';document.getElementById('step-2').style.display='none';}
 function goStep2(){
   const nome=document.getElementById('p-nome').value.trim(),email=document.getElementById('p-email').value.trim(),empId=document.getElementById('p-empresa').value;
@@ -573,16 +648,152 @@ async function submitInscricao(){
 
 async function showPortal(emp){
   document.getElementById('login-screen').style.display='none';
-  const portal=document.getElementById('participant-portal');portal.style.display='flex';
-  document.getElementById('portal-emp-nome').textContent=emp.nome;
-  portalTab('materiais');
+  if(!emp.modulosAtivos){emp.modulosAtivos=['psa'];}
+  window._hubEmp=emp;
+  await migrateAlavoData();
+  const portal=document.getElementById('participant-portal');
+  portal.classList.add('hub-mode');
+  portal.style.display='flex';
+  portal.innerHTML=`
+    <div class="hub-header">
+      <div class="hub-logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12L12 5L19 12"/></svg>Alavo</div>
+      <div style="display:flex;align-items:center;gap:0.75rem">
+        <button onclick="doLogout()" style="color:#94A3B8;background:rgba(255,255,255,0.06);border:1px solid #29313D;padding:0.3rem 0.7rem;border-radius:8px;cursor:pointer;font-size:12px">Sair</button>
+      </div>
+    </div>
+    <div id="hub-content" class="hub-content"></div>
+    <nav class="hub-bottom-nav">
+      <div class="hub-nav-item active" id="hub-nav-inicio" data-tab="inicio" onclick="hubTab('inicio')"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Início</span></div>
+      <div class="hub-nav-item" id="hub-nav-programa" data-tab="programa" onclick="hubTab('programa')"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M8 2v3 M16 2v3 M3 8h18 M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Programa</span></div>
+      <div class="hub-nav-item" id="hub-nav-novidades" data-tab="novidades" onclick="hubTab('novidades')"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Novidades</span></div>
+      <div class="hub-nav-item" id="hub-nav-biblioteca" data-tab="biblioteca" onclick="hubTab('biblioteca')"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Biblioteca</span></div>
+      <div class="hub-nav-item" id="hub-nav-iasc" data-tab="iasc" onclick="hubTab('iasc')"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>IASC</span></div>
+    </nav>`;
+  hubTab('inicio');
+}
+
+function hubTab(tab){
+  document.querySelectorAll('.hub-nav-item').forEach(el=>el.classList.toggle('active',el.dataset.tab===tab));
+  const c=document.getElementById('hub-content');
+  if(!c)return;
+  c.scrollTop=0;
+  if(tab==='inicio')renderHubInicio(c);
+  else if(tab==='programa')renderHubPrograma(c);
+  else if(tab==='novidades')renderHubNovidades(c);
+  else if(tab==='biblioteca')renderHubBiblioteca(c);
+  else if(tab==='iasc')renderHubIASC(c);
+}
+
+async function renderHubInicio(c){
+  const emp=window._hubEmp;if(!emp){c.innerHTML='';return;}
+  const [evts,posts,iascs,psas]=await Promise.all([getEvts(),getPosts(),getIASCRespostas(),getPSAs()]);
+  const now=new Date();
+  const empEvts=evts.filter(e=>e.empresaId===emp.id&&parseLocalDate(e.data)>=now).sort((a,b)=>parseLocalDate(a.data)-parseLocalDate(b.data)).slice(0,3);
+  const empPosts=posts.filter(p=>p.tipo!=='material'&&(p.global||p.empresaId===emp.id)).sort((a,b)=>b.ts-a.ts).slice(0,3);
+  const empIascs=iascs.filter(r=>r.empresaId===emp.id);
+  const psaAtivo=psas.find(p=>p.empresaId===emp.id&&p.status==='ativo');
+  // IASC: aggregate only — no individual data
+  let iascGeral=null;
+  if(empIascs.length){const vals=empIascs.map(r=>r.scores.geral).filter(v=>v>0);iascGeral=vals.length?parseFloat((vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1)):null;}
+  const iascColor=iascGeral?(iascGeral>=8?'#22C55E':iascGeral>=6?'#4ade80':iascGeral>=4?'#F59E0B':'#EF4444'):'#64748B';
+  const iascLabel=iascGeral?(iascGeral>=8?'Excelente':iascGeral>=6?'Bom':iascGeral>=4?'Moderado':'Atenção'):'—';
+  let psaPct='—';
+  if(psaAtivo&&psaAtivo.dataInicio&&psaAtivo.dataFim){const ini=new Date(psaAtivo.dataInicio),fim=new Date(psaAtivo.dataFim);psaPct=Math.min(100,Math.max(0,Math.round(((now-ini)/(fim-ini))*100)))+'%';}
+  const hora=now.getHours();
+  const saud=hora<12?'Bom dia':hora<18?'Boa tarde':'Boa noite';
+  const mods=Object.values(ALAVO_MODULES);
+  const ativos=emp.modulosAtivos||['psa'];
+  c.innerHTML=`
+    <div style="margin-bottom:1.5rem">
+      <div style="font-size:19px;font-weight:700;color:var(--hub-text);margin-bottom:2px">${saud}, ${emp.nome}! 👋</div>
+      <div style="font-size:13px;color:var(--hub-muted)">${psaAtivo?psaAtivo.nome:'Programa Alavo'}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;margin-bottom:1.5rem">
+      <div class="hub-metric"><div class="hub-metric-val" style="color:${iascColor}">${iascGeral||'—'}</div><div class="hub-metric-sub">IASC</div>${iascGeral?`<div style="font-size:10px;font-weight:600;color:${iascColor};margin-top:2px">${iascLabel}</div>`:''}</div>
+      <div class="hub-metric"><div class="hub-metric-val">${empEvts.length}</div><div class="hub-metric-sub">Próx. eventos</div>${empEvts[0]?`<div style="font-size:10px;color:var(--hub-psa);margin-top:2px">${MESES[parseLocalDate(empEvts[0].data).getMonth()].substring(0,3)} ${parseLocalDate(empEvts[0].data).getDate()}</div>`:''}</div>
+      <div class="hub-metric"><div class="hub-metric-val">${psaPct}</div><div class="hub-metric-sub">Programa</div>${psaAtivo&&psaPct!=='—'?`<div style="font-size:10px;color:var(--hub-psa);margin-top:2px">do ciclo</div>`:''}</div>
+    </div>
+    ${empEvts.length>0?`<div style="margin-bottom:1.5rem">
+      <div class="hub-section-hdr">Próximas ações <span class="hub-section-link" onclick="hubTab('programa')">Ver agenda →</span></div>
+      <div class="hub-card" style="padding:0">
+        ${empEvts.map(e=>{const d=parseLocalDate(e.data);return`<div class="hub-action-row"><div class="hub-mod-icon" style="background:var(--hub-psa-bg);font-size:16px">📅</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:var(--hub-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.titulo}</div><div style="font-size:11px;color:var(--hub-muted)">${d.getDate()} ${MESES[d.getMonth()].substring(0,3)}${e.horario?' · '+e.horario:''}</div></div><span class="hub-badge" style="background:var(--hub-psa-bg);color:var(--hub-psa)">PSA</span></div>`;}).join('')}
+      </div>
+    </div>`:''}
+    <div style="margin-bottom:1.5rem">
+      <div class="hub-section-hdr">Módulos integrados</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+        ${mods.map(mod=>{const ativo=ativos.includes(mod.id);const onclick=ativo&&mod.id==='psa'?'onclick="hubTab(\'programa\')"':'';return`<div class="hub-mod-card" style="border-color:${ativo?mod.cor+'33':'var(--hub-border)'}${ativo?'':';opacity:0.5'}" ${onclick}><div class="hub-mod-icon" style="background:${mod.bg};width:40px;height:40px;border-radius:12px;font-size:20px;margin-bottom:0.5rem">${mod.icon}</div><div style="font-size:12px;font-weight:600;color:${ativo?mod.cor:'var(--hub-muted)'}">${mod.label}</div><div style="font-size:10px;color:var(--hub-muted);margin-top:2px">${ativo?mod.desc:mod.comingSoon||'Em breve'}</div></div>`;}).join('')}
+      </div>
+    </div>
+    ${empPosts.length>0?`<div><div class="hub-section-hdr">Novidades <span class="hub-section-link" onclick="hubTab('novidades')">Ver mais →</span></div>
+      ${empPosts.map(p=>`<div class="hub-card" style="margin-bottom:0.75rem;overflow:hidden;padding:0">${p.imagem?`<img src="${p.imagem}" style="width:100%;max-height:160px;object-fit:cover;display:block">`:''}<div style="padding:0.875rem"><div style="font-size:13px;color:var(--hub-text);line-height:1.6">${p.texto||''}</div>${p.video?`<a href="${p.video}" target="_blank" style="color:var(--hub-training);font-size:12px;display:block;margin-top:0.5rem">🎥 Ver vídeo</a>`:''}<div style="font-size:11px;color:var(--hub-subtle);margin-top:0.5rem">${p.dataPublicacao||''}</div></div></div>`).join('')}
+    </div>`:''}`;
+}
+
+async function renderHubPrograma(c){
+  const emp=window._hubEmp;if(!emp){c.innerHTML='';return;}
+  const [evts,psas]=await Promise.all([getEvts(),getPSAs()]);
+  const now=new Date();
+  const empEvts=evts.filter(e=>e.empresaId===emp.id).sort((a,b)=>parseLocalDate(a.data)-parseLocalDate(b.data));
+  const futuros=empEvts.filter(e=>parseLocalDate(e.data)>=now);
+  const passados=empEvts.filter(e=>parseLocalDate(e.data)<now).reverse();
+  const psaAtivo=psas.find(p=>p.empresaId===emp.id&&p.status==='ativo');
+  c.innerHTML=`
+    <div style="font-size:16px;font-weight:700;color:var(--hub-text);margin-bottom:1.25rem">Programa da Empresa</div>
+    ${psaAtivo?`<div class="hub-card" style="border-color:var(--hub-psa-bg);margin-bottom:1.25rem;display:flex;align-items:center;gap:0.75rem"><div class="hub-mod-icon" style="background:var(--hub-psa-bg);width:40px;height:40px;border-radius:12px;font-size:20px">🏢</div><div><div style="font-size:14px;font-weight:600;color:var(--hub-text)">${psaAtivo.nome}</div><div style="font-size:12px;color:var(--hub-muted)">${psaAtivo.frequencia||''}${psaAtivo.duracao?' · '+psaAtivo.duracao:''}</div></div></div>`:''}
+    <div style="font-size:13px;font-weight:600;color:var(--hub-text);margin-bottom:0.75rem">Próximos encontros</div>
+    ${futuros.length===0?`<div style="text-align:center;padding:2rem;color:var(--hub-muted)">Nenhum encontro agendado.</div>`:futuros.map(e=>{const d=parseLocalDate(e.data);return`<div class="hub-card" style="margin-bottom:0.75rem;display:flex;gap:0.75rem;align-items:flex-start;padding:0.875rem">${e.foto?`<img src="${e.foto}" style="width:60px;height:60px;border-radius:10px;object-fit:cover;flex-shrink:0;cursor:zoom-in" onclick="openImgFull(this.src)">`:''}<div style="text-align:center;min-width:36px;flex-shrink:0"><div style="font-size:22px;font-weight:700;color:var(--hub-psa);line-height:1">${d.getDate()}</div><div style="font-size:10px;color:var(--hub-muted);text-transform:uppercase">${MESES[d.getMonth()].substring(0,3)}</div></div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--hub-text)">${e.titulo}</div><div style="font-size:12px;color:var(--hub-muted);margin-top:2px">${e.horario||''}${e.duracao?' · '+e.duracao:''}${e.local?' · '+e.local:''}</div>${e.descricao?`<div style="font-size:12px;color:var(--hub-muted);margin-top:4px;line-height:1.4">${e.descricao}</div>`:''}</div></div>`;}).join('')}
+    ${passados.length>0?`<div style="font-size:13px;font-weight:600;color:var(--hub-muted);margin:1.25rem 0 0.75rem">Realizados</div>${passados.slice(0,6).map(e=>{const d=parseLocalDate(e.data);return`<div class="hub-card" style="margin-bottom:0.5rem;display:flex;gap:0.75rem;align-items:center;opacity:0.6;padding:0.65rem 0.875rem"><div style="text-align:center;min-width:32px"><div style="font-size:17px;font-weight:700;color:var(--hub-muted);line-height:1">${d.getDate()}</div><div style="font-size:9px;color:var(--hub-subtle);text-transform:uppercase">${MESES[d.getMonth()].substring(0,3)}</div></div><div style="font-size:13px;font-weight:500;color:var(--hub-muted)">${e.titulo}</div></div>`;}).join('')}`:''}`;
+}
+
+async function renderHubNovidades(c){
+  const emp=window._hubEmp;if(!emp){c.innerHTML='';return;}
+  const posts=await getPosts();
+  const feed=posts.filter(p=>p.tipo!=='material'&&(p.global||p.empresaId===emp.id)).sort((a,b)=>b.ts-a.ts);
+  c.innerHTML=`<div style="font-size:16px;font-weight:700;color:var(--hub-text);margin-bottom:1.25rem">Novidades</div>
+    ${feed.length===0?`<div style="text-align:center;padding:3rem;color:var(--hub-muted)">Nenhuma publicação ainda.</div>`:feed.map(p=>`<div class="hub-card" style="margin-bottom:0.75rem;overflow:hidden;padding:0">${p.imagem?`<img src="${p.imagem}" style="width:100%;max-height:200px;object-fit:cover;display:block">`:''}<div style="padding:1rem"><div style="font-size:14px;color:var(--hub-text);line-height:1.6">${p.texto||''}</div>${p.video?`<a href="${p.video}" target="_blank" style="color:var(--hub-training);font-size:13px;display:block;margin-top:0.5rem">🎥 Ver vídeo</a>`:''}<div style="font-size:11px;color:var(--hub-subtle);margin-top:0.5rem">${p.dataPublicacao||''}</div></div></div>`).join('')}`;
+}
+
+async function renderHubBiblioteca(c){
+  const emp=window._hubEmp;if(!emp){c.innerHTML='';return;}
+  const mats=await getMats();
+  const empMats=mats.filter(m=>m.global||m.empresaId===emp.id);
+  const tipos=[{k:'exercicio',label:'Fichas de exercício',icon:'⚡',cor:'var(--hub-training)'},{k:'nutricao',label:'Nutrição',icon:'🍎',cor:'var(--hub-nutrients)'},{k:'psicologia',label:'Psicologia',icon:'🧠',cor:'var(--hub-mind)'},{k:'geral',label:'Materiais gerais',icon:'📄',cor:'var(--hub-psa)'}];
+  c.innerHTML=`<div style="font-size:16px;font-weight:700;color:var(--hub-text);margin-bottom:1.25rem">Biblioteca</div>
+    ${empMats.length===0?`<div style="text-align:center;padding:3rem;color:var(--hub-muted)">Nenhum material disponível.</div>`:''}
+    ${tipos.map(t=>{const items=empMats.filter(m=>m.tipo===t.k);if(!items.length)return'';return`<div style="margin-bottom:1.25rem"><div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem"><span>${t.icon}</span><div style="font-size:13px;font-weight:600;color:var(--hub-text)">${t.label}</div><span style="font-size:10px;padding:1px 6px;border-radius:20px;background:rgba(255,255,255,0.08);color:var(--hub-muted)">${items.length}</span></div>${items.map(m=>`<div class="hub-card" style="margin-bottom:0.5rem;display:flex;align-items:center;gap:0.75rem;padding:0.75rem"><div style="font-size:20px">${t.icon}</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:var(--hub-text)">${m.titulo}</div>${m.descricao?`<div style="font-size:11px;color:var(--hub-muted)">${m.descricao}</div>`:''}</div>${m.link?`<a href="${m.link}" target="_blank" style="font-size:12px;color:${t.cor};padding:0.3rem 0.7rem;border:1px solid ${t.cor}55;border-radius:8px;text-decoration:none;flex-shrink:0">Abrir</a>`:''}</div>`).join('')}</div>`;}).join('')}`;
+}
+
+async function renderHubIASC(c){
+  const emp=window._hubEmp;if(!emp){c.innerHTML='';return;}
+  // PRIVACIDADE: apenas dados agregados — nunca dados individuais por código de empresa
+  const iascs=await getIASCRespostas();
+  const empResps=iascs.filter(r=>r.empresaId===emp.id).sort((a,b)=>a.ts-b.ts);
+  if(empResps.length===0){c.innerHTML=`<div style="font-size:16px;font-weight:700;color:var(--hub-text);margin-bottom:1.25rem">IASC</div><div style="text-align:center;padding:3rem;color:var(--hub-muted)"><div style="font-size:2.5rem;margin-bottom:0.75rem">📊</div><div style="font-size:14px;font-weight:500;color:var(--hub-text);margin-bottom:0.25rem">Nenhum dado ainda</div><div style="font-size:12px">Os dados aparecerão após as inscrições dos participantes.</div></div>`;return;}
+  const pilares=['bi','ep','epp','vp'];
+  const pilarNames={bi:'Bem-estar Integrado',ep:'Engajamento & Participação',epp:'Energia e Produtividade',vp:'Valor & Conexão'};
+  const avgScores={};
+  pilares.forEach(p=>{const vals=empResps.map(r=>r.scores[p]).filter(v=>v>0);avgScores[p]=vals.length?parseFloat((vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1)):0;});
+  const allVals=pilares.map(p=>avgScores[p]).filter(v=>v>0);
+  const avgGeral=allVals.length?parseFloat((allVals.reduce((a,b)=>a+b,0)/allVals.length).toFixed(1)):0;
+  const band=avgGeral>=8?{label:'Excelente',cor:'#22C55E'}:avgGeral>=6?{label:'Bom',cor:'#4ade80'}:avgGeral>=4?{label:'Moderado',cor:'#F59E0B'}:{label:'Atenção',cor:'#EF4444'};
+  const ultimaData=empResps[empResps.length-1]?.data||'';
+  c.innerHTML=`
+    <div style="font-size:16px;font-weight:700;color:var(--hub-text);margin-bottom:0.5rem">IASC — Índice de Saúde</div>
+    <div style="font-size:12px;color:var(--hub-muted);margin-bottom:1.25rem">${empResps.length} resposta${empResps.length!==1?'s':''}${ultimaData?' · Última: '+ultimaData:''}</div>
+    <div class="hub-card" style="border-color:${band.cor}40;text-align:center;margin-bottom:1.25rem">
+      <div style="font-size:3rem;font-weight:700;color:${band.cor};line-height:1">${avgGeral}</div>
+      <div style="font-size:13px;color:var(--hub-muted);margin-top:0.25rem">IASC Geral (média do time)</div>
+      <div style="font-size:12px;font-weight:600;color:${band.cor};background:${band.cor}20;padding:0.25rem 0.75rem;border-radius:20px;display:inline-block;margin-top:0.5rem">${band.label}</div>
+    </div>
+    ${pilares.map(p=>{const s=avgScores[p];const pc=s>=8?'#22C55E':s>=6?'#4ade80':s>=4?'#F59E0B':'#EF4444';return`<div class="hub-card" style="margin-bottom:0.75rem"><div style="font-size:11px;font-weight:600;color:var(--hub-muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:0.5rem">${pilarNames[p]}</div><div style="display:flex;align-items:center;gap:0.75rem"><div style="flex:1;height:8px;background:var(--hub-border);border-radius:4px;overflow:hidden"><div style="height:100%;background:${pc};border-radius:4px;width:${s*10}%;transition:width 0.5s"></div></div><div style="font-size:18px;font-weight:700;color:${pc};min-width:30px;text-align:right">${s}</div></div></div>`;}).join('')}`;
 }
 
 let portalTabAtual='materiais';
 function portalTab(tab){
   portalTabAtual=tab;
-  document.querySelectorAll('.portal-tab').forEach((t,i)=>t.classList.toggle('active',['materiais','calendario','feed','meuiasc'][i]===tab));
   const c=document.getElementById('portal-content');
+  if(!c)return;
   if(tab==='materiais')renderPortalMateriais(c);
   else if(tab==='calendario')renderPortalCalendario(c);
   else if(tab==='feed')renderPortalFeed(c);
@@ -1457,8 +1668,8 @@ async function marcarNotifsLidas(){if(!currentProfId)return;const notifs=await g
 
 // ── BACKUP & EXPORT ────────────────────────────────────────────
 async function pgBackup(container){
-  const [profs,eqs,emps,parts,psas,evts,mats,iascs,hist]=await Promise.all([getPrfs(),getEqs(),getEmps(),getParts(),getPSAs(),getEvts(),getMats(),getIASCRespostas(),getHistorico()]);
-  const total=profs.length+eqs.length+emps.length+parts.length+psas.length+evts.length+mats.length+iascs.length+hist.length;
+  const [profs,eqs,emps,parts,psas,evts,mats,iascs,hist,kanban,notifs]=await Promise.all([getPrfs(),getEqs(),getEmps(),getParts(),getPSAs(),getEvts(),getMats(),getIASCRespostas(),getHistorico(),getKanban(),getNotifs()]);
+  const total=profs.length+eqs.length+emps.length+parts.length+psas.length+evts.length+mats.length+iascs.length+hist.length+kanban.length+notifs.length;
   container.innerHTML=`<div class="page" style="max-width:640px">
     <div class="card" style="margin-bottom:1.5rem"><div class="card-title">Resumo dos dados</div>
       <div class="stat-grid" style="margin-bottom:0">
@@ -1496,8 +1707,8 @@ async function pgBackup(container){
 }
 
 async function exportarDados(){
-  const [profs,eqs,emps,parts,psas,evts,posts,mats,iascs,hist]=await Promise.all([getPrfs(),getEqs(),getEmps(),getParts(),getPSAs(),getEvts(),getPosts(),getMats(),getIASCRespostas(),getHistorico()]);
-  const backup={versao:'PSA-Alavo-v4',exportadoEm:new Date().toISOString(),profissionais:profs,equipes:eqs,empresas:emps,participantes:parts,psas,eventos:evts,posts,materiais:mats,iasc_respostas:iascs,historico:hist};
+  const [profs,eqs,emps,parts,psas,evts,posts,mats,iascs,hist,kanban,notifs]=await Promise.all([getPrfs(),getEqs(),getEmps(),getParts(),getPSAs(),getEvts(),getPosts(),getMats(),getIASCRespostas(),getHistorico(),getKanban(),getNotifs()]);
+  const backup={versao:'PSA-Alavo-v5',exportadoEm:new Date().toISOString(),profissionais:profs,equipes:eqs,empresas:emps,participantes:parts,psas,eventos:evts,posts,materiais:mats,iasc_respostas:iascs,historico:hist,kanban,notificacoes:notifs};
   const json=JSON.stringify(backup,null,2);
   const utf8=new TextEncoder().encode(json);
   const bin=Array.from(utf8).map(b=>String.fromCharCode(b)).join('');
@@ -1532,7 +1743,7 @@ async function importarDados(input){
       {key:'profissionais',fn:savePrfs},{key:'equipes',fn:saveEqs},{key:'empresas',fn:saveEmps},
       {key:'participantes',fn:saveParts},{key:'psas',fn:savePSAs},{key:'eventos',fn:saveEvts},
       {key:'posts',fn:savePosts},{key:'materiais',fn:saveMats},{key:'iasc_respostas',fn:saveIASCRespostas},
-      {key:'historico',fn:saveHistorico},
+      {key:'historico',fn:saveHistorico},{key:'kanban',fn:saveKanban},{key:'notificacoes',fn:saveNotifs},
     ];
     for(let i=0;i<steps.length;i++){
       const {key,fn}=steps[i];
@@ -1740,6 +1951,13 @@ async function limparHistorico(){
 
 // ── DATE FIX for all raw new Date(x.data) ────────────────────
 
+async function migrateAlavoData(){
+  try{
+    const emps=await getEmps();let changed=false;
+    emps.forEach(e=>{if(!e.modulosAtivos){e.modulosAtivos=['psa'];changed=true;}});
+    if(changed)await saveEmps(emps);
+  }catch(e){console.warn('migrateAlavoData error:',e);}
+}
 
 async function excluirEmpresa(id){
   if(!await dlgConfirm('Excluir esta empresa permanentemente?','Excluir empresa'))return;
